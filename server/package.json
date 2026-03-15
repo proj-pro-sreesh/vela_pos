@@ -1,0 +1,30 @@
+{
+  "name": "vela-pos-server",
+  "version": "1.0.0",
+  "description": "Restaurant POS System Backend with MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node server.js",
+    "dev": "cross-env NODE_ENV=development node server.js",
+    "seed": "node seeders/demo.js",
+    "backup": "node ../scripts/backup-db.js",
+    "restore": "node ../scripts/restore-db.js"
+  },
+  "keywords": [
+    "pos",
+    "restaurant",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.0",
+    "socket.io": "^4.6.1"
+  }
+}

@@ -1,0 +1,1229 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "$2a$10$sm9Iy7mXB1qlL0j0wNbS4.Sv3h35MeRWrUoi4W2yVgoAZQFzce2T.",
+      "name": "Administrator",
+      "role": "admin",
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:01.985Z"
+    },
+    {
+      "id": 2,
+      "username": "waiter",
+      "password": "$2a$10$2dtKO/zukwmqjmDwZlYBQO8Yk5aX/lnuE/tOJzsbQKlZ8DDwYTQ4i",
+      "name": "John Waiter",
+      "role": "waiter",
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:02.285Z"
+    },
+    {
+      "id": 3,
+      "username": "biller",
+      "password": "$2a$10$M4lqPcy9Mis4Fu/B/GB07e.Xkyy.IZ/izpFdOoh6Ug45p8Gm.kuxK",
+      "name": "Jane Biller",
+      "role": "biller",
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:02.615Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Vegetarian",
+      "displayOrder": 1,
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:02.619Z"
+    },
+    {
+      "id": 2,
+      "name": "Non-Vegetarian",
+      "displayOrder": 2,
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:02.626Z"
+    },
+    {
+      "id": 3,
+      "name": "Beverages",
+      "displayOrder": 3,
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:02.630Z"
+    },
+    {
+      "id": 4,
+      "name": "Desserts",
+      "displayOrder": 4,
+      "isActive": true,
+      "createdAt": "2026-02-18T07:05:02.634Z"
+    }
+  ],
+  "menuItems": [
+    {
+      "id": 1,
+      "name": "Paneer Butter Masala",
+      "categoryId": 1,
+      "price": 250,
+      "isAvailable": true,
+      "description": "Cottage cheese in creamy tomato gravy",
+      "createdAt": "2026-02-18T07:05:02.646Z"
+    },
+    {
+      "id": 2,
+      "name": "Vegetable Biryani",
+      "categoryId": 1,
+      "price": 200,
+      "isAvailable": true,
+      "description": "Fragrant rice with mixed vegetables",
+      "createdAt": "2026-02-18T07:05:02.649Z"
+    },
+    {
+      "id": 3,
+      "name": "Dal Makhani",
+      "categoryId": 1,
+      "price": 180,
+      "isAvailable": true,
+      "description": "Black lentils in creamy sauce",
+      "createdAt": "2026-02-18T07:05:02.659Z"
+    },
+    {
+      "id": 4,
+      "name": "Chicken Curry",
+      "categoryId": 2,
+      "price": 300,
+      "isAvailable": true,
+      "description": "Traditional chicken curry",
+      "createdAt": "2026-02-18T07:05:02.665Z"
+    },
+    {
+      "id": 5,
+      "name": "Mutton Biryani",
+      "categoryId": 2,
+      "price": 400,
+      "isAvailable": true,
+      "description": "Aromatic mutton rice dish",
+      "createdAt": "2026-02-18T07:05:02.668Z"
+    },
+    {
+      "id": 6,
+      "name": "Fish Fry",
+      "categoryId": 2,
+      "price": 350,
+      "isAvailable": true,
+      "description": "Crispy fried fish",
+      "createdAt": "2026-02-18T07:05:02.669Z"
+    },
+    {
+      "id": 7,
+      "name": "Masala Chai",
+      "categoryId": 3,
+      "price": 30,
+      "isAvailable": true,
+      "description": "Spiced Indian tea",
+      "createdAt": "2026-02-18T07:05:02.676Z"
+    },
+    {
+      "id": 8,
+      "name": "Cold Coffee",
+      "categoryId": 3,
+      "price": 80,
+      "isAvailable": true,
+      "description": "Chilled coffee with ice cream",
+      "createdAt": "2026-02-18T07:05:02.687Z"
+    },
+    {
+      "id": 9,
+      "name": "Mango Lassi",
+      "categoryId": 3,
+      "price": 60,
+      "isAvailable": true,
+      "description": "Sweet yogurt mango drink",
+      "createdAt": "2026-02-18T07:05:02.690Z"
+    },
+    {
+      "id": 10,
+      "name": "Gulab Jamun",
+      "categoryId": 4,
+      "price": 80,
+      "isAvailable": true,
+      "description": "Fried milk balls in sugar syrup",
+      "createdAt": "2026-02-18T07:05:02.693Z"
+    },
+    {
+      "id": 11,
+      "name": "Ice Cream",
+      "categoryId": 4,
+      "price": 100,
+      "isAvailable": true,
+      "description": "Assorted flavor ice cream",
+      "createdAt": "2026-02-18T07:05:02.695Z"
+    }
+  ],
+  "tables": [
+    {
+      "id": 1,
+      "tableNumber": "T1",
+      "capacity": 4,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.697Z",
+      "currentOrderId": null
+    },
+    {
+      "id": 10,
+      "tableNumber": "T10",
+      "capacity": 8,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.717Z",
+      "currentOrderId": null
+    },
+    {
+      "id": 2,
+      "tableNumber": "T2",
+      "capacity": 4,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.699Z",
+      "currentOrderId": null
+    },
+    {
+      "id": 3,
+      "tableNumber": "T3",
+      "capacity": 6,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.701Z"
+    },
+    {
+      "id": 4,
+      "tableNumber": "T4",
+      "capacity": 6,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.705Z"
+    },
+    {
+      "id": 5,
+      "tableNumber": "T5",
+      "capacity": 8,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.707Z"
+    },
+    {
+      "id": 6,
+      "tableNumber": "T6",
+      "capacity": 2,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.709Z",
+      "currentOrderId": null
+    },
+    {
+      "id": 7,
+      "tableNumber": "T7",
+      "capacity": 2,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.710Z",
+      "currentOrderId": null
+    },
+    {
+      "id": 8,
+      "tableNumber": "T8",
+      "capacity": 4,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.713Z",
+      "currentOrderId": null
+    },
+    {
+      "id": 9,
+      "tableNumber": "T9",
+      "capacity": 6,
+      "status": "available",
+      "createdAt": "2026-02-18T07:05:02.715Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "orderNumber": "ORD-00001",
+      "tableId": 1,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 1000,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 1000,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T07:06:16.091Z",
+      "paymentMethod": "cash",
+      "amountPaid": 1000
+    },
+    {
+      "id": 2,
+      "orderNumber": "ORD-00002",
+      "tableId": 1,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 980,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 980,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:12:17.250Z",
+      "paymentMethod": "cash",
+      "amountPaid": 980
+    },
+    {
+      "id": 3,
+      "orderNumber": "ORD-00003",
+      "tableId": 1,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 630,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 630,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:13:16.780Z",
+      "paymentMethod": "card",
+      "amountPaid": 630
+    },
+    {
+      "id": 4,
+      "orderNumber": "ORD-00004",
+      "tableId": 10,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 1870,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 1870,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:26:44.514Z",
+      "paymentMethod": "upi",
+      "amountPaid": 1870
+    },
+    {
+      "id": 5,
+      "orderNumber": "ORD-00005",
+      "tableId": 1,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 810,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 810,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:27:00.959Z",
+      "paymentMethod": "card",
+      "amountPaid": 810
+    },
+    {
+      "id": 6,
+      "orderNumber": "ORD-00006",
+      "tableId": 1,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 450,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 450,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:28:05.390Z",
+      "paymentMethod": "card",
+      "amountPaid": 450
+    },
+    {
+      "id": 7,
+      "orderNumber": "ORD-00007",
+      "tableId": 2,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 810,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 810,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:35:24.449Z",
+      "paymentMethod": "cash",
+      "amountPaid": 810
+    },
+    {
+      "id": 8,
+      "orderNumber": "ORD-00008",
+      "tableId": 7,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 410,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 410,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:42:09.972Z",
+      "paymentMethod": "cash",
+      "amountPaid": 410
+    },
+    {
+      "id": 9,
+      "orderNumber": "ORD-00009",
+      "tableId": 6,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 630,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 630,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:42:43.680Z",
+      "paymentMethod": "cash",
+      "amountPaid": 630
+    },
+    {
+      "id": 10,
+      "orderNumber": "ORD-00010",
+      "tableId": 8,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 630,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 630,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:51:04.056Z",
+      "paymentMethod": "cash",
+      "amountPaid": 630
+    },
+    {
+      "id": 11,
+      "orderNumber": "ORD-00011",
+      "tableId": 10,
+      "waiterId": 1,
+      "customerName": "",
+      "customerPhone": "",
+      "subtotal": 700,
+      "discount": 0,
+      "discountType": "percentage",
+      "taxRate": 0,
+      "taxAmount": 0,
+      "total": 700,
+      "paymentStatus": "paid",
+      "status": "active",
+      "notes": "",
+      "createdAt": "2026-02-18T11:51:25.212Z",
+      "paymentMethod": "cash",
+      "amountPaid": 700
+    }
+  ],
+  "kots": [
+    {
+      "id": 1,
+      "orderId": 1,
+      "orderNumber": "ORD-00001",
+      "status": "completed",
+      "createdAt": "2026-02-18T07:06:16.091Z",
+      "completedAt": "2026-02-18T11:11:57.098Z"
+    },
+    {
+      "id": 2,
+      "orderId": 2,
+      "orderNumber": "ORD-00002",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:12:17.251Z",
+      "completedAt": "2026-02-18T11:12:41.325Z"
+    },
+    {
+      "id": 3,
+      "orderId": 3,
+      "orderNumber": "ORD-00003",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:13:16.780Z",
+      "completedAt": "2026-02-18T11:26:32.893Z"
+    },
+    {
+      "id": 4,
+      "orderId": 4,
+      "orderNumber": "ORD-00004",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:26:44.514Z",
+      "completedAt": "2026-02-18T11:27:40.832Z"
+    },
+    {
+      "id": 5,
+      "orderId": 5,
+      "orderNumber": "ORD-00005",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:27:00.959Z",
+      "completedAt": "2026-02-18T11:27:46.742Z"
+    },
+    {
+      "id": 6,
+      "orderId": 6,
+      "orderNumber": "ORD-00006",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:28:05.390Z",
+      "completedAt": "2026-02-18T11:35:09.428Z"
+    },
+    {
+      "id": 7,
+      "orderId": 7,
+      "orderNumber": "ORD-00007",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:35:24.449Z",
+      "completedAt": "2026-02-18T11:41:33.319Z"
+    },
+    {
+      "id": 8,
+      "orderId": 8,
+      "orderNumber": "ORD-00008",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:42:09.973Z",
+      "completedAt": "2026-02-18T11:42:28.746Z"
+    },
+    {
+      "id": 9,
+      "orderId": 9,
+      "orderNumber": "ORD-00009",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:42:43.680Z",
+      "completedAt": "2026-02-18T11:43:04.095Z"
+    },
+    {
+      "id": 10,
+      "orderId": 10,
+      "orderNumber": "ORD-00010",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:51:04.056Z",
+      "completedAt": "2026-02-18T11:51:12.625Z"
+    },
+    {
+      "id": 11,
+      "orderId": 11,
+      "orderNumber": "ORD-00011",
+      "status": "completed",
+      "createdAt": "2026-02-18T11:51:25.212Z",
+      "completedAt": "2026-02-18T11:59:57.526Z"
+    }
+  ],
+  "orderItems": [
+    {
+      "id": 1,
+      "orderId": 1,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 4,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "orderId": 2,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "orderId": 2,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "orderId": 2,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "price": 180,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "orderId": 2,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "price": 350,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "orderId": 3,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "orderId": 3,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "orderId": 3,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "price": 180,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "orderId": 4,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "orderId": 4,
+      "menuItemId": 5,
+      "name": "Mutton Biryani",
+      "quantity": 2,
+      "price": 400,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "orderId": 4,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "price": 350,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 12,
+      "orderId": 4,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "price": 180,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 13,
+      "orderId": 4,
+      "menuItemId": 9,
+      "name": "Mango Lassi",
+      "quantity": 1,
+      "price": 60,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 14,
+      "orderId": 4,
+      "menuItemId": 7,
+      "name": "Masala Chai",
+      "quantity": 1,
+      "price": 30,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 15,
+      "orderId": 4,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 16,
+      "orderId": 5,
+      "menuItemId": 5,
+      "name": "Mutton Biryani",
+      "quantity": 1,
+      "price": 400,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 17,
+      "orderId": 5,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "price": 350,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 18,
+      "orderId": 5,
+      "menuItemId": 9,
+      "name": "Mango Lassi",
+      "quantity": 1,
+      "price": 60,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 19,
+      "orderId": 6,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 20,
+      "orderId": 6,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 21,
+      "orderId": 7,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 22,
+      "orderId": 7,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 23,
+      "orderId": 7,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "price": 180,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 24,
+      "orderId": 7,
+      "menuItemId": 11,
+      "name": "Ice Cream",
+      "quantity": 1,
+      "price": 100,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 25,
+      "orderId": 7,
+      "menuItemId": 10,
+      "name": "Gulab Jamun",
+      "quantity": 1,
+      "price": 80,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 26,
+      "orderId": 8,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "price": 350,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 27,
+      "orderId": 8,
+      "menuItemId": 9,
+      "name": "Mango Lassi",
+      "quantity": 1,
+      "price": 60,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 28,
+      "orderId": 9,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 29,
+      "orderId": 9,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 30,
+      "orderId": 9,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "price": 180,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 31,
+      "orderId": 10,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "price": 250,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 32,
+      "orderId": 10,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "price": 200,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 33,
+      "orderId": 10,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "price": 180,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 34,
+      "orderId": 11,
+      "menuItemId": 4,
+      "name": "Chicken Curry",
+      "quantity": 1,
+      "price": 300,
+      "status": "pending",
+      "notes": ""
+    },
+    {
+      "id": 35,
+      "orderId": 11,
+      "menuItemId": 5,
+      "name": "Mutton Biryani",
+      "quantity": 1,
+      "price": 400,
+      "status": "pending",
+      "notes": ""
+    }
+  ],
+  "kotItems": [
+    {
+      "id": 1,
+      "kotId": 1,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 4,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "kotId": 2,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "kotId": 2,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "kotId": 2,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "kotId": 2,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 6,
+      "kotId": 3,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 7,
+      "kotId": 3,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 8,
+      "kotId": 3,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 9,
+      "kotId": 4,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 10,
+      "kotId": 4,
+      "menuItemId": 5,
+      "name": "Mutton Biryani",
+      "quantity": 2,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 11,
+      "kotId": 4,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 12,
+      "kotId": 4,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 13,
+      "kotId": 4,
+      "menuItemId": 9,
+      "name": "Mango Lassi",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "kotId": 4,
+      "menuItemId": 7,
+      "name": "Masala Chai",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 15,
+      "kotId": 4,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 16,
+      "kotId": 5,
+      "menuItemId": 5,
+      "name": "Mutton Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 17,
+      "kotId": 5,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 18,
+      "kotId": 5,
+      "menuItemId": 9,
+      "name": "Mango Lassi",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 19,
+      "kotId": 6,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    },
+    {
+      "id": 20,
+      "kotId": 6,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    },
+    {
+      "id": 21,
+      "kotId": 7,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 22,
+      "kotId": 7,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 23,
+      "kotId": 7,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 24,
+      "kotId": 7,
+      "menuItemId": 11,
+      "name": "Ice Cream",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 25,
+      "kotId": 7,
+      "menuItemId": 10,
+      "name": "Gulab Jamun",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 26,
+      "kotId": 8,
+      "menuItemId": 6,
+      "name": "Fish Fry",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 27,
+      "kotId": 8,
+      "menuItemId": 9,
+      "name": "Mango Lassi",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 28,
+      "kotId": 9,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    },
+    {
+      "id": 29,
+      "kotId": 9,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    },
+    {
+      "id": 30,
+      "kotId": 9,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    },
+    {
+      "id": 31,
+      "kotId": 10,
+      "menuItemId": 1,
+      "name": "Paneer Butter Masala",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 32,
+      "kotId": 10,
+      "menuItemId": 2,
+      "name": "Vegetable Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 33,
+      "kotId": 10,
+      "menuItemId": 3,
+      "name": "Dal Makhani",
+      "quantity": 1,
+      "notes": "",
+      "status": "pending"
+    },
+    {
+      "id": 34,
+      "kotId": 11,
+      "menuItemId": 4,
+      "name": "Chicken Curry",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    },
+    {
+      "id": 35,
+      "kotId": 11,
+      "menuItemId": 5,
+      "name": "Mutton Biryani",
+      "quantity": 1,
+      "notes": "",
+      "status": "ready"
+    }
+  ],
+  "counters": {
+    "user": 3,
+    "category": 4,
+    "menuItem": 11,
+    "table": 10,
+    "order": 11,
+    "kot": 0
+  }
+}
