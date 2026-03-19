@@ -190,11 +190,11 @@ const Biller = () => {
   const printBill = (order) => {
     const itemsList = order.items?.map((item, idx) => {
       const sn = String(idx + 1).padEnd(2);
-      const name = (item.name + '             ').substring(0, 12).padEnd(12);
-      const qty = String(item.quantity).padEnd(4);
+      const name = (item.name + '       ').substring(0, 15).padEnd(15);
+      const qty = String('' + item.quantity).padEnd(4);
       const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
       const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
-      return sn + name + qty + ' ' + price + ' ' + amt;
+      return sn + name + '    ' + qty + '' + price + '' + amt;
     }).join('\n');
     
     const restaurantName = settings.restaurantName || 'VELA RESTAURANT';
@@ -216,7 +216,7 @@ const Biller = () => {
       "Table: " + (order.tableNumber || 'Takeaway') + "\n" +
       "Date: " + (order.paidAt ? new Date(order.paidAt).toLocaleString() : new Date().toLocaleString()) + "\n" +
       "----------------------------------------\n" +
-      "#  ITEM         QTY  PRICE    AMOUNT \n" +
+      "#  ITEM             QTY  PRICE    AMOUNT  \n" +
       "----------------------------------------\n" +
       itemsList + "\n" +
       "----------------------------------------\n" +
