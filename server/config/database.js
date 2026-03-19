@@ -532,19 +532,38 @@ const getOrderById = async (id) => {
 };
 
 const createOrder = async (data) => {
-  // Generate order number - find highest existing order number to avoid duplicates
+  // Generate order number with format ORD-DD-MM-YYYY-XXXX
   let orderNumber;
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const dateStr = `${day}-${month}-${year}`;
+  
   if (useInMemory) {
-    const count = inMemoryStorage.orders.length;
-    orderNumber = `ORD-${String(count + 1).padStart(5, '0')}`;
+    // For in-memory, count orders from today
+    const todayOrders = inMemoryStorage.orders.filter(o => {
+      const orderDate = new Date(o.createdAt);
+      return orderDate.toDateString() === now.toDateString();
+    });
+    const count = todayOrders.length + 1;
+    orderNumber = `ORD-${dateStr}-${String(count).padStart(4, '0')}`;
   } else {
-    // Find the highest order number in MongoDB
-    const lastOrder = await Order.findOne().sort({ orderNumber: -1 });
-    if (lastOrder && lastOrder.orderNumber) {
-      const num = parseInt(lastOrder.orderNumber.replace('ORD-', ''));
-      orderNumber = `ORD-${String(num + 1).padStart(5, '0')}`;
+    // Find the highest order number for today in MongoDB
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    
+    const lastOrderToday = await Order.findOne({
+      createdAt: { $gte: todayStart, $lt: todayEnd }
+    }).sort({ orderNumber: -1 });
+    
+    if (lastOrderToday && lastOrderToday.orderNumber) {
+      // Extract the sequence number from the last order
+      const parts = lastOrderToday.orderNumber.split('-');
+      const lastSeq = parseInt(parts[parts.length - 1]);
+      orderNumber = `ORD-${dateStr}-${String(lastSeq + 1).padStart(4, '0')}`;
     } else {
-      orderNumber = 'ORD-00001';
+      orderNumber = `ORD-${dateStr}-0001`;
     }
   }
   

@@ -111,8 +111,20 @@ const orderSchema = new mongoose.Schema({
 // Generate order number before saving
 orderSchema.pre('save', async function(next) {
   if (!this.orderNumber) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `ORD-${String(count + 1).padStart(5, '0')}`;
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const dateStr = `${day}-${month}-${year}`;
+    
+    // Find orders from today to get sequence number
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const countToday = await mongoose.model('Order').countDocuments({
+      createdAt: { $gte: todayStart, $lt: todayEnd }
+    });
+    
+    this.orderNumber = `ORD-${dateStr}-${String(countToday + 1).padStart(4, '0')}`;
   }
   next();
 });

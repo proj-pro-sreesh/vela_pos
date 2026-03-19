@@ -460,12 +460,15 @@ export default function Tables() {
                               const order = getTableOrders(String(table.id || table._id));
                               if (order) {
                                 const itemsList = order.items?.map((item, idx) => {
-                                  const sn = String(idx + 1).padEnd(4);
-                                  const name = item.name.substring(0, 20).padEnd(20);
-                                  const qty = String(item.quantity).padEnd(5);
-                                  const amt = String(item.price * item.quantity).padEnd(6);
-                                  return sn + name + qty + amt;
+                                  const sn = String(idx + 1).padEnd(2);
+                                  const name = (item.name + '             ').substring(0, 12).padEnd(12);
+                                  const qty = String(item.quantity).padEnd(4);
+                                  const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
+                                  const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
+                                  return sn + name + qty + ' ' + price + ' ' + amt;
                                 }).join('\n');
+                                
+                                const totalStr = ('      ' + order.total.toFixed(2)).slice(-8);
                                 
                                 const billContent = 
                                   "========================================\n" +
@@ -477,11 +480,11 @@ export default function Tables() {
                                   "Table: " + order.tableNumber + "\n" +
                                   "Date: " + new Date().toLocaleString() + "\n" +
                                   "----------------------------------------\n" +
-                                  "SN  ITEM                QTY  AMT   \n" +
+                                  "#  ITEM         QTY  PRICE    AMOUNT \n" +
                                   "----------------------------------------\n" +
                                   itemsList + "\n" +
                                   "----------------------------------------\n" +
-                                  "TOTAL:                 ₹" + order.total + "\n" +
+                                  "                 TOTAL:  ₹" + totalStr + "\n" +
                                   "========================================\n" +
                                   (settings.billFooter || 'Thank you for visiting us!') + (settings.billFooterTamil ? "\n" + settings.billFooterTamil : "");
                                 
@@ -490,10 +493,31 @@ export default function Tables() {
                                 document.body.appendChild(iframe);
                                 
                                 const iframeDoc = iframe.contentWindow.document;
+                                const billWidth = settings.billWidth || 72;
+                                const billHeight = settings.billHeight || 210;
+                                const widthCm = billWidth * 0.1;
+                                const heightCm = billHeight * 0.1;
+                                
                                 iframeDoc.open();
                                 iframeDoc.write(`
                                   <html>
-                                    <head><title>Bill - ${order.orderNumber}</title></head>
+                                    <head>
+                                      <title>Bill - ${order.orderNumber}</title>
+                                      <style>
+                                        @page {
+                                          size: ${widthCm}cm ${heightCm}cm;
+                                          margin: 0;
+                                        }
+                                        body {
+                                          margin: 0;
+                                          padding: 5px;
+                                          font-family: monospace;
+                                          font-size: 12px;
+                                          width: ${widthCm}cm;
+                                          height: ${heightCm}cm;
+                                        }
+                                      </style>
+                                    </head>
                                     <body>
                                       <pre style="font-family: monospace; font-size: 12px;">${billContent}</pre>
                                       <script>window.print();</script>
@@ -589,16 +613,19 @@ export default function Tables() {
                         color="secondary"
                         onClick={() => {
                           const itemsList = order.items?.map((item, idx) => {
-                            const sn = String(idx + 1).padEnd(4);
-                            const name = item.name.substring(0, 20).padEnd(20);
-                            const qty = String(item.quantity).padEnd(5);
-                            const amt = String(item.price * item.quantity).padEnd(6);
-                            return sn + name + qty + amt;
+                            const sn = String(idx + 1).padEnd(2);
+                            const name = (item.name + '             ').substring(0, 12).padEnd(12);
+                            const qty = String(item.quantity).padEnd(4);
+                            const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
+                            const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
+                            return sn + name + qty + ' ' + price + ' ' + amt;
                           }).join('\n');
+                          
+                          const totalStr = ('      ' + order.total.toFixed(2)).slice(-8);
                           
                           const billContent = 
                             "========================================\n" +
-                            "          " + (settings.restaurantName || 'VELA RESTAURANT') + "\n" +
+                            "         " + (settings.restaurantName || 'VELA RESTAURANT') + "\n" +
                             "========================================\n" +
                             (settings.billHeaderEnglish || settings.billHeaderTamil ? 
                               ((settings.billHeaderEnglish || '') + (settings.billHeaderTamil ? "\n" + settings.billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
@@ -606,11 +633,11 @@ export default function Tables() {
                             "Table: " + order.tableNumber + "\n" +
                             "Date: " + new Date().toLocaleString() + "\n" +
                             "----------------------------------------\n" +
-                            "SN  ITEM                QTY  AMT   \n" +
+                            "#  ITEM         QTY  PRICE    AMOUNT \n" +
                             "----------------------------------------\n" +
                             itemsList + "\n" +
                             "----------------------------------------\n" +
-                            "TOTAL:                 ₹" + order.total + "\n" +
+                            "                 TOTAL:  ₹" + totalStr + "\n" +
                             "========================================\n" +
                             (settings.billFooter || 'Thank you for visiting us!') + (settings.billFooterTamil ? "\n" + settings.billFooterTamil : "");
                           
@@ -619,10 +646,31 @@ export default function Tables() {
                           document.body.appendChild(iframe);
                           
                           const iframeDoc = iframe.contentWindow.document;
+                          const billWidth = settings.billWidth || 72;
+                          const billHeight = settings.billHeight || 210;
+                          const widthCm = billWidth * 0.1;
+                          const heightCm = billHeight * 0.1;
+                          
                           iframeDoc.open();
                           iframeDoc.write(`
                             <html>
-                              <head><title>Bill - ${order.orderNumber}</title></head>
+                              <head>
+                                <title>Bill - ${order.orderNumber}</title>
+                                <style>
+                                  @page {
+                                    size: ${widthCm}cm ${heightCm}cm;
+                                    margin: 0;
+                                  }
+                                  body {
+                                    margin: 0;
+                                    padding: 5px;
+                                    font-family: monospace;
+                                    font-size: 12px;
+                                    width: ${widthCm}cm;
+                                    height: ${heightCm}cm;
+                                  }
+                                </style>
+                              </head>
                               <body>
                                 <pre style="font-family: monospace; font-size: 12px;">${billContent}</pre>
                                 <script>window.print();</script>
@@ -724,40 +772,64 @@ export default function Tables() {
                           color="primary"
                           onClick={() => {
                             const itemsList = order.items?.map((item, idx) => {
-                              const sn = String(idx + 1).padEnd(4);
-                              const name = item.name.substring(0, 20).padEnd(20);
-                              const qty = String(item.quantity).padEnd(5);
-                              const amt = String(item.price * item.quantity).padEnd(6);
-                              return sn + name + qty + amt;
+                              const sn = String(idx + 1).padEnd(2);
+                              const name = (item.name + '             ').substring(0, 12).padEnd(12);
+                              const qty = String(item.quantity).padEnd(4);
+                              const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
+                              const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
+                              return sn + name + qty + ' ' + price + ' ' + amt;
                             }).join('\n');
                             
+                            const totalStr = ('      ' + order.total.toFixed(2)).slice(-8);
+                            
                             const billContent = 
-                "========================================\n" +
-                "          " + (settings.restaurantName || 'VELA RESTAURANT') + "\n" +
-                "========================================\n" +
-                (settings.billHeaderEnglish || settings.billHeaderTamil ? 
-                  ((settings.billHeaderEnglish || '') + (settings.billHeaderTamil ? "\n" + settings.billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
-                "Bill No: " + order.orderNumber + "\n" +
-                "Table: Takeaway\n" +
-                "Date: " + new Date().toLocaleString() + "\n" +
-                "----------------------------------------\n" +
-                "SN  ITEM                QTY  AMT   \n" +
-                "----------------------------------------\n" +
-                itemsList + "\n" +
-                "----------------------------------------\n" +
-                "TOTAL:                 ₹" + order.total + "\n" +
-                "========================================\n" +
-                (settings.billFooter || 'Thank you for visiting us!') + (settings.billFooterTamil ? "\n" + settings.billFooterTamil : "");
+                              "========================================\n" +
+                              "          " + (settings.restaurantName || 'VELA RESTAURANT') + "\n" +
+                              "========================================\n" +
+                              (settings.billHeaderEnglish || settings.billHeaderTamil ? 
+                                ((settings.billHeaderEnglish || '') + (settings.billHeaderTamil ? "\n" + settings.billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
+                              "Bill No: " + order.orderNumber + "\n" +
+                              "Table: Takeaway\n" +
+                              "Date: " + new Date().toLocaleString() + "\n" +
+                              "----------------------------------------\n" +
+                              "#  ITEM         QTY  PRICE    AMOUNT \n" +
+                              "----------------------------------------\n" +
+                              itemsList + "\n" +
+                              "----------------------------------------\n" +
+                              "                 TOTAL:  ₹" + totalStr + "\n" +
+                              "========================================\n" +
+                              (settings.billFooter || 'Thank you for visiting us!') + (settings.billFooterTamil ? "\n" + settings.billFooterTamil : "");
                             
                             const iframe = document.createElement('iframe');
                             iframe.style.display = 'none';
                             document.body.appendChild(iframe);
                             
                             const iframeDoc = iframe.contentWindow.document;
+                            const billWidth = settings.billWidth || 72;
+                            const billHeight = settings.billHeight || 210;
+                            const widthCm = billWidth * 0.1;
+                            const heightCm = billHeight * 0.1;
+                            
                             iframeDoc.open();
                             iframeDoc.write(`
                               <html>
-                                <head><title>Bill - ${order.orderNumber}</title></head>
+                                <head>
+                                  <title>Bill - ${order.orderNumber}</title>
+                                  <style>
+                                    @page {
+                                      size: ${widthCm}cm ${heightCm}cm;
+                                      margin: 0;
+                                    }
+                                    body {
+                                      margin: 0;
+                                      padding: 5px;
+                                      font-family: monospace;
+                                      font-size: 12px;
+                                      width: ${widthCm}cm;
+                                      height: ${heightCm}cm;
+                                    }
+                                  </style>
+                                </head>
                                 <body>
                                   <pre style="font-family: monospace; font-size: 12px;">${billContent}</pre>
                                   <script>window.print();</script>

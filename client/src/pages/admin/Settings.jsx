@@ -30,6 +30,8 @@ const Settings = () => {
     billHeaderTamil: '',
     billFooter: 'Thank you for visiting us!',
     billFooterTamil: 'எங்களை வருகை தந்ததற்கு நன்றி!',
+    billWidth: 72,
+    billHeight: 210,
     autoRefresh: true,
     refreshInterval: 30,
     soundAlerts: true
@@ -75,6 +77,8 @@ const Settings = () => {
       billHeaderTamil: '',
       billFooter: 'Thank you for visiting us!',
       billFooterTamil: 'எங்களை வருகை தந்ததற்கு நன்றி!',
+      billWidth: 72,
+      billHeight: 210,
       autoRefresh: true,
       refreshInterval: 30,
       soundAlerts: true
@@ -224,6 +228,15 @@ const Settings = () => {
                 multiline
                 rows={2}
                 placeholder="அடிக்கு செய்தியை தமிழில் உள்ளிடவும்"
+              />
+              <TextField
+                fullWidth
+                label="Bill Size (mm)"
+                name="billSize"
+                value={`${settings.billWidth} x ${settings.billHeight} mm`}
+                margin="normal"
+                disabled
+                helperText="Thermal paper size (72x210mm = 3 inch x 8.3 inch roll)"
               />
             </CardContent>
           </Card>

@@ -123,15 +123,20 @@ const Biller = () => {
   };
 
   const processPayment = async () => {
+    const paidAmount = parseFloat(amountPaid);
+    if (isNaN(paidAmount) || paidAmount < selectedOrder.total) {
+      alert('Amount received must be at least Rs. ' + selectedOrder.total.toFixed(2));
+      return;
+    }
     try {
       const orderId = selectedOrder.id || selectedOrder._id;
       await orderAPI.processPayment(orderId, {
         paymentMethod,
-        amountPaid: parseFloat(amountPaid)
+        amountPaid: paidAmount
       });
       
       // Store paid order and open print dialog
-      const paidOrderData = { ...selectedOrder, paymentMethod, amountPaid: parseFloat(amountPaid), paidAt: new Date() };
+      const paidOrderData = { ...selectedOrder, paymentMethod, amountPaid: paidAmount, paidAt: new Date() };
       setPaidOrder(paidOrderData);
       setPrintDialogOpen(true);
       
@@ -184,11 +189,12 @@ const Biller = () => {
 
   const printBill = (order) => {
     const itemsList = order.items?.map((item, idx) => {
-      const sn = String(idx + 1).padEnd(4);
-      const name = item.name.substring(0, 20).padEnd(20);
-      const qty = String(item.quantity).padEnd(5);
-      const amt = String(item.price * item.quantity).padEnd(6);
-      return sn + name + qty + amt;
+      const sn = String(idx + 1).padEnd(2);
+      const name = (item.name + '             ').substring(0, 12).padEnd(12);
+      const qty = String(item.quantity).padEnd(4);
+      const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
+      const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
+      return sn + name + qty + ' ' + price + ' ' + amt;
     }).join('\n');
     
     const restaurantName = settings.restaurantName || 'VELA RESTAURANT';
@@ -196,6 +202,9 @@ const Biller = () => {
     const billHeaderTamil = settings.billHeaderTamil || '';
     const billFooter = settings.billFooter || 'Thank you for visiting us!';
     const billFooterTamil = settings.billFooterTamil || '';
+    
+    // Format total line to align with item amounts (right-aligned)
+    const totalStr = ('      ' + order.total.toFixed(2)).slice(-8);
     
     const billContent = 
       "========================================\n" +
@@ -207,11 +216,11 @@ const Biller = () => {
       "Table: " + (order.tableNumber || 'Takeaway') + "\n" +
       "Date: " + (order.paidAt ? new Date(order.paidAt).toLocaleString() : new Date().toLocaleString()) + "\n" +
       "----------------------------------------\n" +
-      "SN  ITEM                QTY  AMT   \n" +
+      "#  ITEM         QTY  PRICE    AMOUNT \n" +
       "----------------------------------------\n" +
       itemsList + "\n" +
       "----------------------------------------\n" +
-      "TOTAL:                 ₹" + order.total + "\n" +
+      "                 TOTAL:  ₹" + totalStr + "\n" +
       "========================================\n" +
       (billFooter || 'Thank you for visiting us!') + (billFooterTamil ? "\n" + billFooterTamil : "");
     
@@ -220,10 +229,38 @@ const Biller = () => {
     document.body.appendChild(iframe);
     
     const iframeDoc = iframe.contentWindow.document;
+    const billWidth = settings.billWidth || 72;
+    const billHeight = settings.billHeight || 210;
+    // Convert mm to cm for CSS (1mm = 0.1cm)
+    const widthCm = billWidth * 0.1;
+    const heightCm = billHeight * 0.1;
+    
     iframeDoc.open();
     iframeDoc.write(`
       <html>
-        <head><title>Bill - ${order.orderNumber}</title></head>
+        <head>
+          <title>Bill - ${order.orderNumber}</title>
+          <style>
+            @page {
+              size: ${widthCm}cm ${heightCm}cm;
+              margin: 0;
+            }
+            body {
+              margin: 0;
+              padding: 5px;
+              font-family: monospace;
+              font-size: 12px;
+              width: ${widthCm}cm;
+              height: ${heightCm}cm;
+            }
+            @media print {
+              body {
+                width: ${widthCm}cm;
+                height: ${heightCm}cm;
+              }
+            }
+          </style>
+        </head>
         <body>
           <pre style="font-family: monospace; font-size: 12px;">${billContent}</pre>
           <script>window.print();</script>

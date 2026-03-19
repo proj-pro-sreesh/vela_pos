@@ -22,7 +22,8 @@ import {
   TableRow,
   Paper,
   Tabs,
-  Tab
+  Tab,
+  MenuItem
 } from '@mui/material';
 import { 
   Add, 
@@ -42,7 +43,7 @@ const MenuManagement = () => {
   const [editMenuItem, setEditMenuItem] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', displayOrder: 0 });
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', displayOrder: 1 });
   const [menuItemForm, setMenuItemForm] = useState({
     name: '', description: '', price: '', category: '', isAvailable: true, prepTime: 15
   });
@@ -75,7 +76,7 @@ const MenuManagement = () => {
       }
       setCategoryDialogOpen(false);
       setEditCategory(null);
-      setCategoryForm({ name: '', description: '', displayOrder: 0 });
+      setCategoryForm({ name: '', description: '', displayOrder: 1 });
       fetchData();
     } catch (error) {
       console.error('Error saving category:', error);
@@ -135,8 +136,9 @@ const MenuManagement = () => {
       setEditCategory(cat);
       setCategoryForm({ name: cat.name, description: cat.description, displayOrder: cat.displayOrder });
     } else {
+      const maxOrder = categories.length > 0 ? Math.max(...categories.map(c => c.displayOrder || 0)) : 0;
       setEditCategory(null);
-      setCategoryForm({ name: '', description: '', displayOrder: 0 });
+      setCategoryForm({ name: '', description: '', displayOrder: maxOrder + 1 });
     }
     setCategoryDialogOpen(true);
   };
@@ -328,7 +330,7 @@ const MenuManagement = () => {
             sx={{ mb: 1 }}
           >
             {categories.map(cat => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
+              <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
             ))}
           </TextField>
           <TextField
