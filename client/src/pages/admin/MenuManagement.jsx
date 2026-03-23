@@ -192,7 +192,6 @@ const MenuManagement = () => {
                   <TableCell>Order</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Description</TableCell>
-                  <TableCell>Status</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -202,7 +201,6 @@ const MenuManagement = () => {
                     <TableCell>{cat.displayOrder}</TableCell>
                     <TableCell>{cat.name}</TableCell>
                     <TableCell>{cat.description}</TableCell>
-                    <TableCell>{cat.isActive ? 'Active' : 'Inactive'}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => openCategoryDialog(cat)}><Edit /></IconButton>
                       <IconButton onClick={() => handleDeleteCategory(cat._id)}><Delete /></IconButton>
@@ -233,8 +231,6 @@ const MenuManagement = () => {
                   <TableCell>Name</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Price</TableCell>
-                  <TableCell>Prep Time</TableCell>
-                  <TableCell>Available</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -244,13 +240,6 @@ const MenuManagement = () => {
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.category?.name}</TableCell>
                     <TableCell>₹{item.price}</TableCell>
-                    <TableCell>{item.prepTime} min</TableCell>
-                    <TableCell>
-                      <Switch 
-                        checked={item.isAvailable} 
-                        onChange={() => handleToggleAvailability(item)}
-                      />
-                    </TableCell>
                     <TableCell>
                       <IconButton onClick={() => openMenuItemDialog(item)}><Edit /></IconButton>
                       <IconButton onClick={() => handleDeleteMenuItem(item._id)}><Delete /></IconButton>
@@ -333,23 +322,6 @@ const MenuManagement = () => {
               <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
             ))}
           </TextField>
-          <TextField
-            fullWidth
-            label="Prep Time (minutes)"
-            type="number"
-            value={menuItemForm.prepTime}
-            onChange={(e) => setMenuItemForm({ ...menuItemForm, prepTime: parseInt(e.target.value) })}
-            sx={{ mb: 1 }}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={menuItemForm.isAvailable}
-                onChange={(e) => setMenuItemForm({ ...menuItemForm, isAvailable: e.target.checked })}
-              />
-            }
-            label="Available"
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMenuItemDialogOpen(false)}>Cancel</Button>
