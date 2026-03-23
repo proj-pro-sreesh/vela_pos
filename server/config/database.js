@@ -96,11 +96,11 @@ const findUserByEmail = async (email) => {
 
 const findUserById = async (id) => {
   if (useInMemory) {
-    const user = inMemoryStorage.users.find(u => u.id === id);
+    const user = inMemoryStorage.users.find(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
     return user ? { ...user } : null;
   }
   try {
-    const user = await User.findById(id);
+    const user = await User.findOne({ $or: [{ _id: id }, { id: id }] });
     return user ? toObject(user) : null;
   } catch (e) {
     return null;
@@ -139,7 +139,7 @@ const getAllUsers = async () => {
 
 const updateUser = async (id, data) => {
   if (useInMemory) {
-    const index = inMemoryStorage.users.findIndex(u => u.id === id);
+    const index = inMemoryStorage.users.findIndex(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
     if (index === -1) return null;
     // Prevent modifying admin user
     if (inMemoryStorage.users[index].username === 'admin') {
@@ -150,17 +150,17 @@ const updateUser = async (id, data) => {
     return user;
   }
   // Prevent modifying admin user in MongoDB
-  const existingUser = await User.findById(id);
+  const existingUser = await User.findOne({ $or: [{ _id: id }, { id: id }] });
   if (existingUser && existingUser.username === 'admin') {
     return null;
   }
-  const user = await User.findByIdAndUpdate(id, data, { new: true });
+  const user = await User.findOneAndUpdate({ $or: [{ _id: id }, { id: id }] }, data, { new: true });
   return user ? toObject(user) : null;
 };
 
 const deactivateUser = async (id) => {
   if (useInMemory) {
-    const index = inMemoryStorage.users.findIndex(u => u.id === id);
+    const index = inMemoryStorage.users.findIndex(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
     // Prevent deactivating admin user
     if (index !== -1 && inMemoryStorage.users[index].username === 'admin') {
       return;
@@ -171,11 +171,36 @@ const deactivateUser = async (id) => {
     return;
   }
   // Prevent deactivating admin user in MongoDB
-  const existingUser = await User.findById(id);
+  const existingUser = await User.findOne({ $or: [{ _id: id }, { id: id }] });
   if (existingUser && existingUser.username === 'admin') {
     return;
   }
-  await User.findByIdAndUpdate(id, { isActive: false });
+  await User.findOneAndUpdate({ $or: [{ _id: id }, { id: id }] }, { isActive: false });
+};
+
+const reactivateUser = async (id) => {
+  if (useInMemory) {
+    const index = inMemoryStorage.users.findIndex(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
+    if (index !== -1) {
+      inMemoryStorage.users[index].isActive = true;
+      const { password, ...user } = inMemoryStorage.users[index];
+      return user;
+    }
+    return null;
+  }
+  const user = await User.findOneAndUpdate({ $or: [{ _id: id }, { id: id }] }, { isActive: true }, { new: true });
+  return user ? toObject(user) : null;
+};
+
+const deleteUser = async (id) => {
+  if (useInMemory) {
+    const index = inMemoryStorage.users.findIndex(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
+    if (index !== -1) {
+      inMemoryStorage.users.splice(index, 1);
+    }
+    return;
+  }
+  await User.findOneAndDelete({ $or: [{ _id: id }, { id: id }] });
 };
 
 // Categories
@@ -897,6 +922,8 @@ module.exports = {
   getAllUsers,
   updateUser,
   deactivateUser,
+  reactivateUser,
+  deleteUser,
   getAllCategories,
   createCategory,
   updateCategory,

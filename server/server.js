@@ -22,7 +22,7 @@ const { Server } = require('socket.io');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { initDB, connectDB, findUserByUsername, findUserById, createUser, getAllUsers, updateUser, deactivateUser, getAllCategories, createCategory, updateCategory, deleteCategory, getAllMenuItems, getMenuItemsGrouped, createMenuItem, updateMenuItem, toggleMenuItemAvailability, deleteMenuItem, getAllTables, getTablesWithOrders, createTable, updateTable, updateTableStatus, deleteTable, getAllOrders, getActiveOrders, getOrderById, createOrder, updateOrder, processPayment, deleteOrder, mongoose } = require('./config/database');
+const { initDB, connectDB, findUserByUsername, findUserById, createUser, getAllUsers, updateUser, deactivateUser, reactivateUser, deleteUser, getAllCategories, createCategory, updateCategory, deleteCategory, getAllMenuItems, getMenuItemsGrouped, createMenuItem, updateMenuItem, toggleMenuItemAvailability, deleteMenuItem, getAllTables, getTablesWithOrders, createTable, updateTable, updateTableStatus, deleteTable, getAllOrders, getActiveOrders, getOrderById, createOrder, updateOrder, processPayment, deleteOrder, mongoose } = require('./config/database');
 
 const app = express();
 const server = http.createServer(app);
@@ -444,10 +444,21 @@ app.put('/api/users/:id', auth, rbac('*'), async (req, res) => {
 });
 app.delete('/api/users/:id', auth, rbac('*'), async (req, res) => {
   try {
-    await deactivateUser(req.params.id);
-    res.json({ message: 'Deactivated' });
+    await deleteUser(req.params.id);
+    res.json({ message: 'User deleted' });
   } catch (error) {
-    res.status(500).json({ message: 'Error deactivating user' });
+    res.status(500).json({ message: 'Error deleting user' });
+  }
+});
+
+// Reactivate user
+app.put('/api/users/:id/reactivate', auth, rbac('*'), async (req, res) => {
+  try {
+    const user = await reactivateUser(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User reactivated', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error reactivating user' });
   }
 });
 

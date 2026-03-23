@@ -99,4 +99,16 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+// Reactivate user (admin only)
+router.put('/:id/reactivate', (req, res) => {
+  try {
+    const user = db.reactivateUser(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User reactivated successfully', user });
+  } catch (error) {
+    console.error('Error reactivating user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

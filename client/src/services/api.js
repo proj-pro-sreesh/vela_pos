@@ -112,7 +112,8 @@ export const userAPI = {
   create: (data) => api.post('/users', data),
   update: (id, data) => api.put(`/users/${id}`, data),
   changePassword: (id, data) => api.put(`/users/${id}/password`, data),
-  delete: (id) => api.delete(`/users/${id}`)
+  delete: (id) => api.delete(`/users/${id}`),
+  reactivate: (id) => api.put(`/users/${id}/reactivate`)
 };
 
 // Report APIs

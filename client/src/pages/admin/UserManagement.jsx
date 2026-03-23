@@ -22,7 +22,7 @@ import {
   InputLabel,
   Chip
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, Refresh } from '@mui/icons-material';
 import { userAPI } from '../../services/api';
 
 const UserManagement = () => {
@@ -69,9 +69,20 @@ const UserManagement = () => {
       alert('Admin user cannot be deleted.');
       return;
     }
-    if (confirm('Deactivate this user?')) {
+    if (confirm('Delete this user?')) {
       try {
         await userAPI.delete(id);
+        fetchUsers();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  };
+
+  const handleReactivate = async (id) => {
+    if (confirm('Reactivate this user?')) {
+      try {
+        await userAPI.reactivate(id);
         fetchUsers();
       } catch (error) {
         console.error('Error:', error);
@@ -141,7 +152,12 @@ const UserManagement = () => {
                     <Typography variant="caption" color="text.secondary">Protected</Typography>
                   )}
                   {user.username !== 'admin' && (
-                    <IconButton onClick={() => handleDelete(user._id, user.role)}><Delete /></IconButton>
+                    <>
+                      <IconButton onClick={() => handleDelete(user._id, user.role)}><Delete /></IconButton>
+                      {!user.isActive && (
+                        <IconButton onClick={() => handleReactivate(user._id)}><Refresh /></IconButton>
+                      )}
+                    </>
                   )}
                 </TableCell>
               </TableRow>
