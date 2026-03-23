@@ -257,6 +257,95 @@ The database is pre-seeded with demo data. Use these credentials to login:
 
 ---
 
+## Password Management
+
+The system provides several options for managing your password:
+
+### 1. Change Password (Logged In Users)
+
+If you're already logged in and want to change your password:
+1. Go to **Admin** > **Settings** > **Security**
+2. Enter your current password
+3. Enter and confirm your new password
+4. Click "Change Password"
+
+### 2. Forgot Password (Reset via Code)
+
+If you've forgotten your password, you can reset it using a security code:
+
+**Step 1: Request Reset Code**
+1. On the login page, click **"Forgot Password?"**
+2. Enter your username
+3. Click **Send Code**
+4. A 6-character reset code will be displayed (for demo - in production, this would be emailed)
+
+**Step 2: Reset Your Password**
+1. Enter the reset code
+2. Enter your new password
+3. Confirm the new password
+4. Click **Reset Password**
+5. Login with your new password
+
+**Security Notes:**
+- Reset codes expire after 15 minutes
+- Maximum 3 attempts allowed before requiring a new code
+- New password must be at least 4 characters
+
+### API Details
+
+#### Forgot Password Request
+```http
+POST /api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "username": "admin"
+}
+
+Response:
+{
+  "message": "Reset code generated",
+  "resetCode": "A1B2C3",
+  "username": "admin"
+}
+```
+
+#### Reset Password
+```http
+POST /api/auth/reset-password
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "resetCode": "A1B2C3",
+  "newPassword": "newpass123"
+}
+
+Response:
+{
+  "message": "Password reset successfully. You can now login with your new password."
+}
+```
+
+#### Change Password (Authenticated)
+```http
+POST /api/auth/change-password
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "currentPassword": "oldpass123",
+  "newPassword": "newpass123"
+}
+
+Response:
+{
+  "message": "Password changed successfully"
+}
+```
+
+---
+
 ## After Machine Restart
 
 The application does NOT start automatically. To start it after restarting your computer:
@@ -388,6 +477,9 @@ If npm install fails:
 ### Authentication
 - `POST /api/auth/login` - User login
 - `GET /api/auth/me` - Get current user
+- `POST /api/auth/change-password` - Change password (requires auth)
+- `POST /api/auth/forgot-password` - Request password reset code
+- `POST /api/auth/reset-password` - Reset password with code
 
 ### Menu
 - `GET /api/menu` - Get menu items

@@ -26,9 +26,9 @@ const seedProduction = async (reuseConnection = false) => {
       console.log('No existing users found, creating production users...');
       
       await User.create([
-        { username: 'admin', password: '$2a$10$Jno92iCMcziATWO6BchIlekB/Pbcqw/o0nl0ohU3b.5EZAZ8ETTdS', name: 'Administrator', role: 'admin', isActive: true },
-        { username: 'waiter', password: '$2a$10$7E1EUsP7forfOdc/moxEAeqFNNqw1NzKOkP.WXHpZT877XIzJ6Tm6', name: 'John Waiter', role: 'waiter', isActive: true },
-        { username: 'biller', password: '$2a$10$R1a4hGvSfQvGTsI8gtUOy.cE9B1o8sPcbicdFwiegrS.neHrxmmD.', name: 'Jane Biller', role: 'biller', isActive: true }
+        { username: 'admin', email: 'admin@velapos.com', password: '$2a$10$Jno92iCMcziATWO6BchIlekB/Pbcqw/o0nl0ohU3b.5EZAZ8ETTdS', name: 'Administrator', role: 'admin', isActive: true },
+        { username: 'waiter', email: 'waiter@velapos.com', password: '$2a$10$7E1EUsP7forfOdc/moxEAeqFNNqw1NzKOkP.WXHpZT877XIzJ6Tm6', name: 'John Waiter', role: 'waiter', isActive: true },
+        { username: 'biller', email: 'biller@velapos.com', password: '$2a$10$R1a4hGvSfQvGTsI8gtUOy.cE9B1o8sPcbicdFwiegrS.neHrxmmD.', name: 'Jane Biller', role: 'biller', isActive: true }
       ]);
       console.log('Created users: { admin: "admin", waiter: "waiter", biller: "biller" }');
     } else {

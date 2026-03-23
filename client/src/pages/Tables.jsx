@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Box, Grid, Card, CardContent, Typography, Button, Dialog, DialogTitle, 
   DialogContent, DialogActions, TextField, MenuItem, Tab, Tabs, Chip, IconButton,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Divider
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Divider,
+  FormControl, InputLabel, Select, Alert
 } from '@mui/material';
 import { 
-  Delete, Payment, Print, Person, LocalShipping, ShoppingCart, Edit, Search 
+  Delete, Print, Person, LocalShipping, ShoppingCart, Edit, Search, Receipt 
 } from '@mui/icons-material';
-import { tableAPI, orderAPI, menuAPI } from '../services/api';
+import { tableAPI, orderAPI, menuAPI, reportAPI } from '../services/api';
 
 const statusColors = {
   available: 'success',
@@ -36,6 +37,12 @@ export default function Tables() {
   const [deletingOrder, setDeletingOrder] = useState(null);
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
   const [editMenuSearchQuery, setEditMenuSearchQuery] = useState('');
+  const [popularItems, setPopularItems] = useState([]);
+  const [billDialogOpen, setBillDialogOpen] = useState(false);
+  const [billingOrder, setBillingOrder] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [billLoading, setBillLoading] = useState(false);
+  const [showBillPrinted, setShowBillPrinted] = useState(false);
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('restaurantSettings');
     return saved ? JSON.parse(saved) : {};
@@ -44,6 +51,7 @@ export default function Tables() {
   useEffect(() => {
     fetchTables();
     fetchActiveOrders();
+    fetchPopularItems();
     // Load settings
     const savedSettings = localStorage.getItem('restaurantSettings');
     if (savedSettings) {
@@ -63,6 +71,23 @@ export default function Tables() {
     } catch (error) {
       console.error('Error fetching tables:', error);
       setLoading(false);
+    }
+  };
+
+  const fetchPopularItems = async () => {
+    try {
+      // Get last 5 days for popular items
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 5);
+      
+      const response = await reportAPI.getPopularItems({
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
+      });
+      setPopularItems(response.data || []);
+    } catch (error) {
+      console.error('Error fetching popular items:', error);
     }
   };
 
@@ -214,6 +239,115 @@ export default function Tables() {
       navigate('/biller', { state: { orderId: tableOrder.id || tableOrder._id } });
     }
   }
+
+  const handleOpenBillDialog = (order) => {
+    setBillingOrder(order);
+    setPaymentMethod('cash');
+    setBillDialogOpen(true);
+  };
+
+  const handleQuickBill = async () => {
+    if (!billingOrder) return;
+    setBillLoading(true);
+    try {
+      await orderAPI.processPayment(billingOrder.id || billingOrder._id, {
+        paymentMethod,
+        amountPaid: billingOrder.total
+      });
+      setShowBillPrinted(true);
+      setBillLoading(false);
+      fetchActiveOrders();
+      fetchTables();
+    } catch (error) {
+      alert('Payment failed: ' + (error.response?.data?.message || error.message));
+      setBillLoading(false);
+    }
+  };
+
+  const handlePrintBill = () => {
+    if (!billingOrder) return;
+    
+    const restaurantName = settings.restaurantName || 'VELA RESTAURANT';
+    const billHeader = settings.billHeaderEnglish || '';
+    const billHeaderTamil = settings.billHeaderTamil || '';
+    const billFooter = settings.billFooter || 'Thank you for visiting us!';
+    const billFooterTamil = settings.billFooterTamil || '';
+    
+    const itemsList = billingOrder.items?.map((item, idx) => {
+      const sn = String(idx + 1).padEnd(2);
+      const name = (item.name + '       ').substring(0, 15).padEnd(15);
+      const qty = String('' + item.quantity).padEnd(4);
+      const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
+      const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
+      return sn + name + '    ' + qty + '' + price + '' + amt;
+    }).join('\n');
+    
+    // Format total line to align with item amounts (right-aligned)
+    const totalStr = ('      ' + billingOrder.total.toFixed(2)).slice(-8);
+    
+    const billContent = 
+      "========================================\n" +
+      "          " + restaurantName + "\n" +
+      "========================================\n" +
+      (billHeader || billHeaderTamil ? 
+        ((billHeader || '') + (billHeaderTamil ? "\n" + billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
+      "Bill No: " + billingOrder.orderNumber + "\n" +
+      "Table: " + (billingOrder.tableNumber || 'Takeaway') + "\n" +
+      "Date: " + (billingOrder.paidAt ? new Date(billingOrder.paidAt).toLocaleString() : new Date().toLocaleString()) + "\n" +
+      "----------------------------------------\n" +
+      "#  ITEM             QTY  PRICE    AMOUNT  \n" +
+      "----------------------------------------\n" +
+      itemsList + "\n" +
+      "----------------------------------------\n" +
+      "                 TOTAL:  ₹" + totalStr + "\n" +
+      "========================================\n" +
+      (billFooter || 'Thank you for visiting us!') + (billFooterTamil ? "\n" + billFooterTamil : "");
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    const iframeDoc = iframe.contentWindow.document;
+    const billWidth = settings.billWidth || 72;
+    const billHeight = settings.billHeight || 210;
+    const widthCm = billWidth * 0.1;
+    const heightCm = billHeight * 0.1;
+    
+    iframeDoc.open();
+    iframeDoc.write(`
+      <html>
+        <head>
+          <title>Bill - ${billingOrder.orderNumber}</title>
+          <style>
+            @page {
+              size: ${widthCm}cm ${heightCm}cm;
+              margin: 0;
+            }
+            body {
+              margin: 0;
+              padding: 5px;
+              font-family: monospace;
+              font-size: 12px;
+              width: ${widthCm}cm;
+              height: ${heightCm}cm;
+            }
+          </style>
+        </head>
+        <body>
+          <pre style="font-family: monospace; font-size: 12px;">${billContent}</pre>
+          <script>window.print();</script>
+        </body>
+      </html>
+    `);
+    iframeDoc.close();
+    
+    // Close dialog after printing
+    setTimeout(() => {
+      setBillDialogOpen(false);
+      setBillingOrder(null);
+      setShowBillPrinted(false);
+    }, 1000);
+  };
 
   const handleAddItem = (menuItem) => {
     const existingItem = orderItems.find(item => item.id === menuItem._id);
@@ -443,14 +577,15 @@ export default function Tables() {
                           <Button 
                             size="small" 
                             variant="contained"
-                            startIcon={<Payment />}
+                            color="success"
+                            startIcon={<Receipt />}
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedTable(table);
-                              handlePayment();
+                              const order = getTableOrders(String(table.id || table._id));
+                              if (order) handleOpenBillDialog(order);
                             }}
                           >
-                            Pay
+                            Bill
                           </Button>
                           <IconButton 
                             size="small"
@@ -593,20 +728,11 @@ export default function Tables() {
                       </IconButton>
                       <IconButton 
                         size="small"
-                        onClick={() => {
-                          const tableRef = order.table;
-                          const tableId = tableRef?._id ? String(tableRef._id) : (order.tableId ? String(order.tableId) : null);
-                          const table = tableId ? (tables.find(t => String(t.id || t._id) === tableId) || tableRef) : null;
-                          if (table) {
-                            setSelectedTable(table);
-                            handlePayment();
-                          } else {
-                            // For takeaway orders, navigate directly to biller
-                            navigate('/biller', { state: { orderId: order.id || order._id } });
-                          }
-                        }}
+                        color="success"
+                        onClick={() => handleOpenBillDialog(order)}
+                        title="Quick Bill"
                       >
-                        <Payment />
+                        <Receipt />
                       </IconButton>
                       <IconButton 
                         size="small"
@@ -762,11 +888,12 @@ export default function Tables() {
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button 
                           variant="contained" 
+                          color="success"
                           fullWidth
-                          startIcon={<Payment />}
-                          onClick={() => navigate('/biller', { state: { orderId: order.id || order._id } })}
+                          startIcon={<Receipt />}
+                          onClick={() => handleOpenBillDialog(order)}
                         >
-                          Process Payment
+                          Quick Bill
                         </Button>
                         <IconButton 
                           color="primary"
@@ -895,6 +1022,36 @@ export default function Tables() {
                   style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }}
                 />
               </Box>
+              {!menuSearchQuery && popularItems.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Top Selling Last Five Days:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {popularItems.slice(0, 10).map((item, index) => (
+                      <Chip
+                        key={index}
+                        label={`${item.name} (${item.quantity})`}
+                        onClick={() => {
+                          const menuItem = menuItems.find(m => m.name && item.name && m.name.toLowerCase() === item.name.toLowerCase());
+                          if (menuItem) {
+                            handleAddItem(menuItem);
+                          } else {
+                            // Try to find by searching in menuItems
+                            const foundItem = menuItems.find(m => 
+                              m.name && item.name && m.name.toLowerCase().includes(item.name.toLowerCase())
+                            );
+                            if (foundItem) {
+                              handleAddItem(foundItem);
+                            }
+                          }
+                        }}
+                        sx={{ cursor: 'pointer', bgcolor: '#e3f2fd', '&:hover': { bgcolor: '#bbdefb' } }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
               {menuSearchQuery ? (
                 <Box sx={{ mb: 3 }}>
                   {(() => {
@@ -1041,6 +1198,33 @@ export default function Tables() {
                   style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }}
                 />
               </Box>
+              {!editMenuSearchQuery && popularItems.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Top Selling Last Five Days:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {popularItems.slice(0, 10).map((item, index) => (
+                      <Chip
+                        key={index}
+                        label={`${item.name} (${item.quantity})`}
+                        onClick={() => {
+                          const menuItem = menuItems.find(m => m.name && item.name && m.name.toLowerCase() === item.name.toLowerCase());
+                          if (menuItem) {
+                            handleEditAddItem(menuItem);
+                          } else {
+                            const foundItem = menuItems.find(m => 
+                              m.name && item.name && m.name.toLowerCase().includes(item.name.toLowerCase())
+                            );
+                            if (foundItem) handleEditAddItem(foundItem);
+                          }
+                        }}
+                        sx={{ cursor: 'pointer', bgcolor: '#e3f2fd', '&:hover': { bgcolor: '#bbdefb' } }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
               {editMenuSearchQuery ? (
                 <Box sx={{ mb: 3 }}>
                   {(() => {
@@ -1190,6 +1374,89 @@ export default function Tables() {
           >
             Delete Order
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Quick Bill Dialog */}
+      <Dialog open={billDialogOpen} onClose={() => setBillDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          Quick Bill - Order #{billingOrder?.orderNumber}
+        </DialogTitle>
+        <DialogContent>
+          {billingOrder && (
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                Table: {billingOrder.tableNumber || 'Takeaway'}
+              </Typography>
+              
+              <Divider sx={{ my: 1 }} />
+              
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>Items:</Typography>
+                {billingOrder.items?.map((item, idx) => (
+                  <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+                    <Typography variant="body2">
+                      {item.quantity}x {item.name}
+                    </Typography>
+                    <Typography variant="body2">
+                      ₹{(item.price * item.quantity).toFixed(2)}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+              
+              <Divider sx={{ my: 1 }} />
+              
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="h6">Total:</Typography>
+                <Typography variant="h6" color="primary">₹{billingOrder.total?.toFixed(2)}</Typography>
+              </Box>
+              
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>Payment Method</InputLabel>
+                <Select
+                  value={paymentMethod}
+                  label="Payment Method"
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  disabled={showBillPrinted}
+                >
+                  <MenuItem value="cash">Cash</MenuItem>
+                  <MenuItem value="card">Card</MenuItem>
+                  <MenuItem value="upi">UPI</MenuItem>
+                </Select>
+              </FormControl>
+              
+              {showBillPrinted && (
+                <Alert severity="success" sx={{ mt: 1 }}>
+                  Payment successful! Click "Print Bill" to print the receipt.
+                </Alert>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setBillDialogOpen(false); setShowBillPrinted(false); }}>
+            {showBillPrinted ? 'Close' : 'Cancel'}
+          </Button>
+          {showBillPrinted ? (
+            <Button 
+              variant="contained" 
+              color="primary"
+              startIcon={<Print />}
+              onClick={handlePrintBill}
+            >
+              Print Bill
+            </Button>
+          ) : (
+            <Button 
+              variant="contained" 
+              color="success"
+              onClick={handleQuickBill}
+              disabled={billLoading}
+            >
+              {billLoading ? 'Processing...' : 'Complete Payment'}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </Box>

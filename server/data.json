@@ -3,6 +3,7 @@
     {
       "id": 1,
       "username": "admin",
+      "email": "admin@velapos.com",
       "password": "$2a$10$sm9Iy7mXB1qlL0j0wNbS4.Sv3h35MeRWrUoi4W2yVgoAZQFzce2T.",
       "name": "Administrator",
       "role": "admin",
@@ -12,6 +13,7 @@
     {
       "id": 2,
       "username": "waiter",
+      "email": "waiter@velapos.com",
       "password": "$2a$10$2dtKO/zukwmqjmDwZlYBQO8Yk5aX/lnuE/tOJzsbQKlZ8DDwYTQ4i",
       "name": "John Waiter",
       "role": "waiter",
@@ -21,6 +23,7 @@
     {
       "id": 3,
       "username": "biller",
+      "email": "biller@velapos.com",
       "password": "$2a$10$M4lqPcy9Mis4Fu/B/GB07e.Xkyy.IZ/izpFdOoh6Ug45p8Gm.kuxK",
       "name": "Jane Biller",
       "role": "biller",

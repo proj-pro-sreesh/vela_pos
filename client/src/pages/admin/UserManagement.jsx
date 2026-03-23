@@ -81,6 +81,11 @@ const UserManagement = () => {
 
   const openDialog = (user = null) => {
     if (user) {
+      // Prevent editing admin user
+      if (user.username === 'admin') {
+        alert('Admin user cannot be edited. Only password can be reset.');
+        return;
+      }
       setEditUser(user);
       setForm({ username: user.username, password: '', name: user.name, role: user.role });
     } else {
@@ -130,8 +135,12 @@ const UserManagement = () => {
                 </TableCell>
                 <TableCell>{user.isActive ? 'Active' : 'Inactive'}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => openDialog(user)}><Edit /></IconButton>
-                  {user.role !== 'admin' && (
+                  {user.username !== 'admin' ? (
+                    <IconButton onClick={() => openDialog(user)}><Edit /></IconButton>
+                  ) : (
+                    <Typography variant="caption" color="text.secondary">Protected</Typography>
+                  )}
+                  {user.username !== 'admin' && (
                     <IconButton onClick={() => handleDelete(user._id, user.role)}><Delete /></IconButton>
                   )}
                 </TableCell>

@@ -85,6 +85,15 @@ const findUserByUsername = async (username) => {
   return user ? toObject(user) : null;
 };
 
+const findUserByEmail = async (email) => {
+  if (useInMemory) {
+    const user = inMemoryStorage.users.find(u => u.email === email.toLowerCase());
+    return user ? { ...user } : null;
+  }
+  const user = await User.findOne({ email: email.toLowerCase() });
+  return user ? toObject(user) : null;
+};
+
 const findUserById = async (id) => {
   if (useInMemory) {
     const user = inMemoryStorage.users.find(u => u.id === id);
@@ -132,9 +141,18 @@ const updateUser = async (id, data) => {
   if (useInMemory) {
     const index = inMemoryStorage.users.findIndex(u => u.id === id);
     if (index === -1) return null;
+    // Prevent modifying admin user
+    if (inMemoryStorage.users[index].username === 'admin') {
+      return null;
+    }
     inMemoryStorage.users[index] = { ...inMemoryStorage.users[index], ...data, updatedAt: new Date() };
     const { password, ...user } = inMemoryStorage.users[index];
     return user;
+  }
+  // Prevent modifying admin user in MongoDB
+  const existingUser = await User.findById(id);
+  if (existingUser && existingUser.username === 'admin') {
+    return null;
   }
   const user = await User.findByIdAndUpdate(id, data, { new: true });
   return user ? toObject(user) : null;
@@ -143,9 +161,18 @@ const updateUser = async (id, data) => {
 const deactivateUser = async (id) => {
   if (useInMemory) {
     const index = inMemoryStorage.users.findIndex(u => u.id === id);
+    // Prevent deactivating admin user
+    if (index !== -1 && inMemoryStorage.users[index].username === 'admin') {
+      return;
+    }
     if (index !== -1) {
       inMemoryStorage.users[index].isActive = false;
     }
+    return;
+  }
+  // Prevent deactivating admin user in MongoDB
+  const existingUser = await User.findById(id);
+  if (existingUser && existingUser.username === 'admin') {
     return;
   }
   await User.findByIdAndUpdate(id, { isActive: false });

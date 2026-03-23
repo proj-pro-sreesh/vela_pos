@@ -64,6 +64,13 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   try {
     const { name, role, isActive } = req.body;
+    
+    // Check if trying to modify admin user
+    const existingUser = db.findUserById(req.params.id);
+    if (existingUser && existingUser.username === 'admin') {
+      return res.status(403).json({ message: 'Cannot modify admin user' });
+    }
+    
     const user = db.updateUser(req.params.id, { name, role, isActive });
     if (!user) return res.status(404).json({ message: 'User not found' });
     
@@ -78,6 +85,12 @@ router.put('/:id', (req, res) => {
 // Deactivate user (admin only)
 router.delete('/:id', (req, res) => {
   try {
+    // Check if trying to delete admin user
+    const existingUser = db.findUserById(req.params.id);
+    if (existingUser && existingUser.username === 'admin') {
+      return res.status(403).json({ message: 'Cannot delete admin user' });
+    }
+    
     db.deactivateUser(req.params.id);
     res.json({ message: 'User deactivated successfully' });
   } catch (error) {
