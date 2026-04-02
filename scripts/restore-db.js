@@ -36,7 +36,7 @@ async function restoreDatabase() {
     console.log(`  ${index + 1}. ${backup}`);
   });
   
-  console();
+  console.log();
   const readline = require('readline');
   const rl = readline.createInterface({
     input: process.stdin,
