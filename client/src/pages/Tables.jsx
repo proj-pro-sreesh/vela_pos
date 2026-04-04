@@ -523,7 +523,21 @@ export default function Tables() {
       </Tabs>
 
       {currentTab === 0 && (
-        <Grid container spacing={3}>
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Button 
+              variant="contained" 
+              startIcon={<LocalShipping />}
+              onClick={() => {
+                setSelectedTable({ id: 'takeaway', tableNumber: 'TAKEAWAY' });
+                fetchMenuItems();
+                setOrderDialogOpen(true);
+              }}
+            >
+              New Takeaway
+            </Button>
+          </Box>
+          <Grid container spacing={3}>
           {tables.filter(t => t.status !== 'reserved').map((table) => {
             const tableId = String(table.id || table._id);
             const tableOrder = getTableOrders(tableId);
@@ -667,6 +681,7 @@ export default function Tables() {
             );
           })}
         </Grid>
+        </Box>
       )}
 
       {currentTab === 1 && (
@@ -676,17 +691,6 @@ export default function Tables() {
               <LocalShipping color="primary" />
               Takeaway Order
             </Typography>
-            <Button 
-              variant="contained" 
-              startIcon={<LocalShipping />}
-              onClick={() => {
-                setSelectedTable({ id: 'takeaway', tableNumber: 'TAKEAWAY' });
-                fetchMenuItems();
-                setOrderDialogOpen(true);
-              }}
-            >
-              New Takeaway
-            </Button>
           </Box>
           <TableContainer component={Paper}>
             <Table>
