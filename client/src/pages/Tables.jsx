@@ -515,25 +515,11 @@ export default function Tables() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5">Table Management</Typography>
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <Button 
-            variant="outlined" 
-            startIcon={<LocalShipping />}
-            onClick={() => {
-              setSelectedTable({ id: 'takeaway', tableNumber: 'TAKEAWAY' });
-              fetchMenuItems();
-              setOrderDialogOpen(true);
-            }}
-          >
-            Takeaway Order
-          </Button>
-        </Box>
       </Box>
 
       <Tabs value={currentTab} onChange={(e, v) => setCurrentTab(v)} sx={{ mb: 3 }}>
         <Tab label="Floor View" />
-        <Tab label="Active Orders" />
-        <Tab label="Takeaway Orders" />
+        <Tab label="Table View" />
       </Tabs>
 
       {currentTab === 0 && (
@@ -684,23 +670,49 @@ export default function Tables() {
       )}
 
       {currentTab === 1 && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order #</TableCell>
-                <TableCell>Table</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.values(orders).map(order => (
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LocalShipping color="primary" />
+              Takeaway Order
+            </Typography>
+            <Button 
+              variant="contained" 
+              startIcon={<LocalShipping />}
+              onClick={() => {
+                setSelectedTable({ id: 'takeaway', tableNumber: 'TAKEAWAY' });
+                fetchMenuItems();
+                setOrderDialogOpen(true);
+              }}
+            >
+              New Takeaway
+            </Button>
+          </Box>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Order #</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Table</TableCell>
+                  <TableCell>Items</TableCell>
+                  <TableCell>Total</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[...Object.values(orders), ...takeawayOrders].map(order => (
                 <TableRow key={order._id || order.id}>
                   <TableCell>{order.orderNumber || order._id?.slice(-6)}</TableCell>
-                  <TableCell>{order.table ? `Table ${order.table.tableNumber || 'Unknown'}` : (order.tableId ? `Table ${tables.find(t => String(t.id || t._id) === String(order.tableId))?.tableNumber}` : 'Takeaway')}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={order.isTakeaway || order.tableId === null || order.tableId === 'takeaway' || order.customerName === 'Takeaway' || order.customerName === 'takeaway' ? 'Takeaway' : 'Dine-in'} 
+                      color={order.isTakeaway || order.tableId === null || order.customerName === 'Takeaway' || order.customerName === 'takeaway' ? 'warning' : 'primary'}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>{order.table ? `Table ${order.table.tableNumber || 'Unknown'}` : (order.tableId ? (order.tableId === 'takeaway' ? 'Takeaway' : `Table ${tables.find(t => String(t.id || t._id) === String(order.tableId))?.tableNumber}`) : (order.customerName === 'Takeaway' || order.customerName === 'takeaway' ? 'Takeaway' : 'Takeaway'))}</TableCell>
                   <TableCell>{order.items?.length || 0}</TableCell>
                   <TableCell>₹{order.total}</TableCell>
                   <TableCell>
@@ -816,190 +828,7 @@ export default function Tables() {
             </TableBody>
           </Table>
         </TableContainer>
-      )}
-
-      {/* Takeaway Orders Tab */}
-      {currentTab === 2 && (
-        <Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LocalShipping color="primary" />
-              Takeaway Orders
-            </Typography>
-          </Box>
-
-          {takeawayOrders.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: 'center' }}>
-              <LocalShipping sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                No Takeaway Orders
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Click "New Takeaway Order" to create one
-              </Typography>
-            </Paper>
-          ) : (
-            <Grid container spacing={3}>
-              {takeawayOrders.map(order => (
-                <Grid item xs={12} sm={6} md={4} key={order._id || order.id}>
-                  <Card 
-                    variant="outlined" 
-                    sx={{ 
-                      bgcolor: '#fff3e0',
-                      '&:hover': { boxShadow: 3 }
-                    }}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h6" fontWeight="bold">
-                          {order.orderNumber}
-                        </Typography>
-                        <Chip 
-                          label={order.status === 'active' ? 'Pending' : order.status} 
-                          color={order.status === 'active' ? 'warning' : 'success'}
-                          size="small"
-                        />
-                      </Box>
-                      
-                      <Divider sx={{ mb: 2 }} />
-                      
-                      <Box sx={{ mb: 2 }}>
-                        {order.items?.map((item, idx) => (
-                          <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-                            <Typography variant="body2">
-                              {item.quantity}x {item.name}
-                            </Typography>
-                            <Typography variant="body2" fontWeight="bold">
-                              ₹{item.price * item.quantity}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                      
-                      <Divider sx={{ mb: 2 }} />
-                      
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                        <Typography variant="subtitle1" fontWeight="bold">Total</Typography>
-                        <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                          ₹{order.total}
-                        </Typography>
-                      </Box>
-                      
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button 
-                          variant="contained" 
-                          color="success"
-                          fullWidth
-                          startIcon={<Receipt />}
-                          onClick={() => handleOpenBillDialog(order)}
-                        >
-                          Quick Bill
-                        </Button>
-                        <IconButton 
-                          color="primary"
-                          onClick={() => {
-                            const itemsList = order.items?.map((item, idx) => {
-                              const sn = String(idx + 1).padEnd(2);
-                              const name = (item.name + '       ').substring(0, 15).padEnd(15);
-                              const qty = String('' + item.quantity).padEnd(4);
-                              const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
-                              const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
-                              return sn + name + '    ' + qty + '' + price + '' + amt;
-                            }).join('\n');
-                            
-                            const totalStr = ('      ' + order.total.toFixed(2)).slice(-8);
-                            
-                            const billContent = 
-                              "========================================\n" +
-                              "          " + (settings.restaurantName || 'VELA RESTAURANT') + "\n" +
-                              "========================================\n" +
-                              (settings.billHeaderEnglish || settings.billHeaderTamil ? 
-                                ((settings.billHeaderEnglish || '') + (settings.billHeaderTamil ? "\n" + settings.billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
-                              "Bill No: " + order.orderNumber + "\n" +
-                              "Table: Takeaway\n" +
-                              "Date: " + new Date().toLocaleString() + "\n" +
-                              "----------------------------------------\n" +
-                              "#  ITEM             QTY  PRICE    AMOUNT  \n" +
-                              "----------------------------------------\n" +
-                              itemsList + "\n" +
-                              "----------------------------------------\n" +
-                              "                 TOTAL:  ₹" + totalStr + "\n" +
-                              "========================================\n" +
-                              (settings.billFooter || 'Thank you for visiting us!') + (settings.billFooterTamil ? "\n" + settings.billFooterTamil : "");
-                            
-                            const iframe = document.createElement('iframe');
-                            iframe.style.display = 'none';
-                            document.body.appendChild(iframe);
-                            
-                            const iframeDoc = iframe.contentWindow.document;
-                            const billWidth = settings.billWidth || 72;
-                            const billHeight = settings.billHeight || 210;
-                            const widthCm = billWidth * 0.1;
-                            const heightCm = billHeight * 0.1;
-                            
-                            iframeDoc.open();
-                            iframeDoc.write(`
-                              <html>
-                                <head>
-                                  <title>Bill - ${order.orderNumber}</title>
-                                  <style>
-                                    @page {
-                                      size: ${widthCm}cm ${heightCm}cm;
-                                      margin: 0;
-                                    }
-                                    body {
-                                      margin: 0;
-                                      padding: 5px;
-                                      font-family: monospace;
-                                      font-size: 12px;
-                                      width: ${widthCm}cm;
-                                      height: ${heightCm}cm;
-                                    }
-                                  </style>
-                                </head>
-                                <body>
-                                  <pre style="font-family: monospace; font-size: 12px;">${billContent}</pre>
-                                  <script>window.print();</script>
-                                </body>
-                              </html>
-                            `);
-                            iframeDoc.close();
-                          }}
-                          title="Print Bill"
-                        >
-                          <Print />
-                        </IconButton>
-                        <IconButton 
-                          color="secondary"
-                          onClick={() => {
-                            // Set the editing order for takeaway - match the pattern from handleEditOrder
-                            setEditingOrder(order);
-                            setEditingOrderItems(order.items?.map(item => ({
-                              id: item.menuItem || item.menuItemId || item.id || item._id,
-                              name: item.name,
-                              price: item.price,
-                              quantity: item.quantity
-                            })) || []);
-                            setEditOrderDialogOpen(true);
-                          }}
-                          title="Edit Order"
-                        >
-                          <Edit />
-                        </IconButton>
-                        <IconButton 
-                          color="error"
-                          onClick={() => handleDeleteOrderClick(order)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Box>
+      </Box>
       )}
 
       {/* Order Dialog */}
