@@ -519,7 +519,7 @@ export default function Tables() {
 
       <Tabs value={currentTab} onChange={(e, v) => setCurrentTab(v)} sx={{ mb: 3 }}>
         <Tab label="Floor View" />
-        <Tab label="Table View" />
+        <Tab label="Order View" />
       </Tabs>
 
       {currentTab === 0 && (
@@ -689,7 +689,7 @@ export default function Tables() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <LocalShipping color="primary" />
-              Takeaway Order
+              Order View
             </Typography>
           </Box>
           <TableContainer component={Paper}>
