@@ -263,7 +263,7 @@ export default function Tables() {
       "Table: " + (order.tableNumber || 'Takeaway') + "\n" +
       "Date: " + (order.paidAt ? new Date(order.paidAt).toLocaleString() : new Date().toLocaleString()) + "\n" +
       "----------------------------------------\n" +
-      "#  ITEM             QTY  PRICE    AMOUNT  \n" +
+      "#  ITEM             QTY    PRICE  AMOUNT  \n" +
       "----------------------------------------\n" +
       itemsList + "\n" +
       "----------------------------------------\n" +
