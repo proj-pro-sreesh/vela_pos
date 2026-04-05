@@ -240,6 +240,8 @@ export default function Tables() {
   const printOrderBill = (order) => {
     if (!order) return;
     const restaurantName = settings.restaurantName || 'VELA RESTAURANT';
+    const restaurantAddress = settings.address || '';
+    const restaurantPhone = settings.phone || '';
     const billHeader = settings.billHeaderEnglish || '';
     const billHeaderTamil = settings.billHeaderTamil || '';
     const billFooter = settings.billFooter || 'Thank you for visiting us!';
@@ -257,6 +259,9 @@ export default function Tables() {
       "========================================\n" +
       "          " + restaurantName + "\n" +
       "========================================\n" +
+      (restaurantAddress ? restaurantAddress + "\n" : "") +
+      (restaurantPhone ? "✆: " + restaurantPhone + "\n" : "") +
+      "----------------------------------------\n" +
       (billHeader || billHeaderTamil ? 
         ((billHeader || '') + (billHeaderTamil ? "\n" + billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
       "Bill No: " + order.orderNumber + "\n" +

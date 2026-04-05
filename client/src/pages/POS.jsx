@@ -317,6 +317,8 @@ const POS = () => {
           {lastOrder && (
             <Box sx={{ p: 2 }}>
               <Typography variant="h6" align="center" gutterBottom>{settings.restaurantName || 'VELA RESTAURANT'}</Typography>
+              {settings.address && <Typography variant="body2" align="center" gutterBottom>{settings.address}</Typography>}
+              {settings.phone && <Typography variant="body2" align="center" gutterBottom>Ph: {settings.phone}</Typography>}
               {settings.billHeaderEnglish && <Typography variant="body2" align="center" gutterBottom>{settings.billHeaderEnglish}</Typography>}
               {settings.billHeaderTamil && <Typography variant="body2" align="center" gutterBottom sx={{ fontFamily: 'Noto Sans Tamil, sans-serif' }}>{settings.billHeaderTamil}</Typography>}
               <Divider sx={{ my: 1 }} />

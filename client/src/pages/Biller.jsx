@@ -198,6 +198,8 @@ const Biller = () => {
     }).join('\n');
     
     const restaurantName = settings.restaurantName || 'VELA RESTAURANT';
+    const restaurantAddress = settings.address || '';
+    const restaurantPhone = settings.phone || '';
     const billHeader = settings.billHeaderEnglish || '';
     const billHeaderTamil = settings.billHeaderTamil || '';
     const billFooter = settings.billFooter || 'Thank you for visiting us!';
@@ -210,13 +212,16 @@ const Biller = () => {
       "========================================\n" +
       "          " + restaurantName + "\n" +
       "========================================\n" +
+      (restaurantAddress ? restaurantAddress + "\n" : "") +
+      (restaurantPhone ? "✆: " + restaurantPhone + "\n" : "") +
+      "----------------------------------------\n" +
       (billHeader || billHeaderTamil ? 
         ((billHeader || '') + (billHeaderTamil ? "\n" + billHeaderTamil : "") + "\n----------------------------------------\n") : "") +
       "Bill No: " + order.orderNumber + "\n" +
       "Table: " + (order.tableNumber || 'Takeaway') + "\n" +
       "Date: " + (order.paidAt ? new Date(order.paidAt).toLocaleString() : new Date().toLocaleString()) + "\n" +
       "----------------------------------------\n" +
-      "#  ITEM             QTY  PRICE    AMOUNT  \n" +
+      "#  ITEM             QTY    PRICE  AMOUNT  \n" +
       "----------------------------------------\n" +
       itemsList + "\n" +
       "----------------------------------------\n" +
