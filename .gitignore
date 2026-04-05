@@ -20,6 +20,7 @@ backups/
 
 # MongoDB data (local)
 data/
+mongodb-win32-x86_64-windows-6.0.14/
 
 # OS files
 .DS_Store
