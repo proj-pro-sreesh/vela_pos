@@ -18,6 +18,7 @@ import UserManagement from './pages/admin/UserManagement';
 import TableManagement from './pages/admin/TableManagement';
 import Settings from './pages/admin/Settings';
 import Reports from './pages/admin/Reports';
+import VendorDashboard from './pages/VendorDashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, roles }) => {
@@ -149,6 +150,16 @@ function App() {
           element={
             <ProtectedRoute roles={['admin']}>
               <Reports />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Vendor Dashboard - accessible to admin and biller */}
+        <Route 
+          path="vendors" 
+          element={
+            <ProtectedRoute roles={['admin', 'biller']}>
+              <VendorDashboard />
             </ProtectedRoute>
           } 
         />

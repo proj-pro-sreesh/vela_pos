@@ -673,6 +673,10 @@ app.post('/api/test-login', (req, res) => {
   res.json({ success: true, user: { username: user.username, role: user.role } });
 });
 
+// Vendor routes
+const vendorRoutes = require('./routes/vendors');
+app.use('/api', vendorRoutes);
+
 const PORT = process.env.PORT || 5000;
 
 // Initialize database and start server

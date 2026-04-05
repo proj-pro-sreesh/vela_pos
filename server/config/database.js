@@ -7,6 +7,8 @@ const Category = require('../models/Category');
 const MenuItem = require('../models/MenuItem');
 const Table = require('../models/Table');
 const Order = require('../models/Order');
+const Vendor = require('../models/Vendor');
+const VendorTransaction = require('../models/VendorTransaction');
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/vela-pos';
 
@@ -19,7 +21,9 @@ const inMemoryStorage = {
   categories: [],
   menuItems: [],
   tables: [],
-  orders: []
+  orders: [],
+  vendors: [],
+  vendorTransactions: []
 };
 
 // Counter for generating IDs
@@ -28,7 +32,9 @@ let idCounter = {
   categories: 1,
   menuItems: 1,
   tables: 1,
-  orders: 1
+  orders: 1,
+  vendors: 1,
+  vendorTransactions: 1
 };
 
 const connectDB = async () => {
@@ -912,6 +918,204 @@ const deleteOrder = async (id) => {
   }
 };
 
+// ==================== VENDOR FUNCTIONS ====================
+
+// Get all vendors
+const getAllVendors = async () => {
+  if (useInMemory) {
+    return inMemoryStorage.vendors.map(v => ({ ...v }));
+  }
+  const vendors = await Vendor.find().sort({ name: 1 });
+  return vendors.map(toObject);
+};
+
+// Get vendor by ID
+const getVendorById = async (id) => {
+  if (useInMemory) {
+    const vendor = inMemoryStorage.vendors.find(v => 
+      v.id === id || v._id === id || String(v.id) === String(id)
+    );
+    return vendor ? { ...vendor } : null;
+  }
+  const vendor = await Vendor.findById(id);
+  return vendor ? toObject(vendor) : null;
+};
+
+// Create vendor
+const createVendor = async (vendorData) => {
+  const { name, contactPerson, phone, email, address } = vendorData;
+  
+  if (useInMemory) {
+    const vendor = {
+      id: generateId('vendors'),
+      _id: generateId('vendors'),
+      name,
+      contactPerson: contactPerson || '',
+      phone: phone || '',
+      email: email || '',
+      address: address || '',
+      balance: 0,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    inMemoryStorage.vendors.push(vendor);
+    return { ...vendor };
+  }
+  
+  const vendor = new Vendor({
+    name,
+    contactPerson,
+    phone,
+    email,
+    address
+  });
+  
+  await vendor.save();
+  return toObject(vendor);
+};
+
+// Update vendor
+const updateVendor = async (id, vendorData) => {
+  if (useInMemory) {
+    const index = inMemoryStorage.vendors.findIndex(v => 
+      v.id === id || v._id === id || String(v.id) === String(id)
+    );
+    if (index === -1) return null;
+    
+    inMemoryStorage.vendors[index] = {
+      ...inMemoryStorage.vendors[index],
+      ...vendorData,
+      updatedAt: new Date().toISOString()
+    };
+    return { ...inMemoryStorage.vendors[index] };
+  }
+  
+  const vendor = await Vendor.findByIdAndUpdate(
+    id,
+    { ...vendorData, updatedAt: Date.now() },
+    { new: true }
+  );
+  return vendor ? toObject(vendor) : null;
+};
+
+// Delete vendor
+const deleteVendor = async (id) => {
+  if (useInMemory) {
+    const index = inMemoryStorage.vendors.findIndex(v => 
+      v.id === id || v._id === id || String(v.id) === String(id)
+    );
+    if (index === -1) return false;
+    
+    inMemoryStorage.vendors.splice(index, 1);
+    return true;
+  }
+  
+  const result = await Vendor.findByIdAndDelete(id);
+  return !!result;
+};
+
+// ==================== VENDOR TRANSACTION FUNCTIONS ====================
+
+// Get all transactions for a vendor
+const getVendorTransactions = async (vendorId, limit = 50) => {
+  if (useInMemory) {
+    const transactions = inMemoryStorage.vendorTransactions
+      .filter(t => t.vendorId === vendorId || String(t.vendorId) === String(vendorId))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, limit);
+    return transactions.map(t => ({ ...t }));
+  }
+  
+  const transactions = await VendorTransaction.find({ vendorId })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate('createdBy', 'name');
+  return transactions.map(toObject);
+};
+
+// Get all transactions (all vendors)
+const getAllTransactions = async (limit = 100) => {
+  if (useInMemory) {
+    const transactions = inMemoryStorage.vendorTransactions
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, limit);
+    return transactions.map(t => ({ ...t }));
+  }
+  
+  const transactions = await VendorTransaction.find()
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate('vendorId', 'name')
+    .populate('createdBy', 'name');
+  return transactions.map(toObject);
+};
+
+// Create vendor transaction
+const createVendorTransaction = async (vendorId, transactionData) => {
+  const { type, amount, description, reference, createdBy } = transactionData;
+  
+  // Get current vendor balance
+  let currentBalance = 0;
+  if (useInMemory) {
+    const vendor = inMemoryStorage.vendors.find(v => 
+      v.id === vendorId || v._id === vendorId || String(v.id) === String(vendorId)
+    );
+    if (vendor) currentBalance = vendor.balance || 0;
+  } else {
+    const vendor = await Vendor.findById(vendorId);
+    if (vendor) currentBalance = vendor.balance || 0;
+  }
+  
+  // Calculate new balance
+  const balanceAfter = type === 'credit' 
+    ? currentBalance + parseFloat(amount)
+    : currentBalance - parseFloat(amount);
+  
+  if (useInMemory) {
+    const transaction = {
+      id: generateId('vendorTransactions'),
+      _id: generateId('vendorTransactions'),
+      vendorId: String(vendorId),
+      type,
+      amount: parseFloat(amount),
+      description: description || '',
+      reference: reference || '',
+      balanceAfter,
+      createdBy: createdBy || null,
+      createdAt: new Date().toISOString()
+    };
+    inMemoryStorage.vendorTransactions.push(transaction);
+    
+    // Update vendor balance
+    const vendorIndex = inMemoryStorage.vendors.findIndex(v => 
+      v.id === vendorId || v._id === vendorId || String(v.id) === String(vendorId)
+    );
+    if (vendorIndex !== -1) {
+      inMemoryStorage.vendors[vendorIndex].balance = balanceAfter;
+    }
+    
+    return { ...transaction };
+  }
+  
+  const transaction = new VendorTransaction({
+    vendorId,
+    type,
+    amount: parseFloat(amount),
+    description,
+    reference,
+    balanceAfter,
+    createdBy
+  });
+  
+  await transaction.save();
+  
+  // Update vendor balance
+  await Vendor.findByIdAndUpdate(vendorId, { balance: balanceAfter });
+  
+  return toObject(transaction);
+};
+
 // Export sync-compatible versions that work with existing code
 module.exports = {
   initDB,
@@ -947,5 +1151,14 @@ module.exports = {
   updateOrder,
   processPayment,
   deleteOrder,
-  mongoose
+  mongoose,
+  // Vendor functions
+  getAllVendors,
+  getVendorById,
+  createVendor,
+  updateVendor,
+  deleteVendor,
+  getVendorTransactions,
+  getAllTransactions,
+  createVendorTransaction
 };
