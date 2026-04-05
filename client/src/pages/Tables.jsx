@@ -624,9 +624,6 @@ export default function Tables() {
       <Dialog open={orderDialogOpen} onClose={() => setOrderDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>{selectedTable?.id === 'takeaway' ? 'Takeaway Order' : `Order - Table ${selectedTable?.tableNumber}`}</DialogTitle>
         <DialogContent>
-          {selectedTable?.id === 'takeaway' && (
-            <TextField fullWidth label="Customer Name" value={takeawayName} onChange={(e) => setTakeawayName(e.target.value)} sx={{ mb: 2 }} />
-          )}
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
               <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
