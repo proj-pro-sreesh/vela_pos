@@ -28,7 +28,9 @@ import {
   Tab,
   Alert,
   Snackbar,
-  Avatar
+  Avatar,
+  Menu,
+  ButtonGroup
 } from '@mui/material';
 import { 
   Add,
@@ -39,9 +41,12 @@ import {
   TrendingDown,
   Store,
   SwapHoriz,
-  Close
+  Close,
+  Download,
+  FileDownload
 } from '@mui/icons-material';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 
 const API_URL = '/api';
 
@@ -55,6 +60,7 @@ const VendorDashboard = () => {
   const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [exportAnchorEl, setExportAnchorEl] = useState(null);
   
   // Form states
   const [vendorForm, setVendorForm] = useState({
@@ -215,6 +221,55 @@ const VendorDashboard = () => {
     });
   };
 
+  // Export to Excel
+  const exportToExcel = () => {
+    if (!selectedVendor || transactions.length === 0) {
+      showSnackbar('No transactions to export', 'warning');
+      return;
+    }
+
+    const exportData = transactions.map(t => ({
+      Date: formatDate(t.createdAt),
+      Type: t.type.toUpperCase(),
+      Amount: t.amount,
+      Description: t.description || '',
+      Reference: t.reference || '',
+      'Balance After': t.balanceAfter
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+    XLSX.writeFile(wb, `${selectedVendor.name}_transactions_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showSnackbar('Exported to Excel successfully');
+    setExportAnchorEl(null);
+  };
+
+  // Export vendors list
+  const exportVendorsToExcel = () => {
+    if (vendors.length === 0) {
+      showSnackbar('No vendors to export', 'warning');
+      return;
+    }
+
+    const exportData = vendors.map(v => ({
+      Name: v.name,
+      'Contact Person': v.contactPerson || '',
+      Phone: v.phone || '',
+      Email: v.email || '',
+      Address: v.address || '',
+      Balance: v.balance || 0,
+      'Created At': formatDate(v.createdAt)
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Vendors');
+    XLSX.writeFile(wb, `vendors_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showSnackbar('Exported vendors to Excel successfully');
+    setExportAnchorEl(null);
+  };
+
   const getBalanceColor = (balance) => {
     if (balance > 0) return 'success';
     if (balance < 0) return 'error';
@@ -230,13 +285,36 @@ const VendorDashboard = () => {
         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
           Vendor Transactions
         </Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<Add />}
-          onClick={() => openVendorDialog()}
-        >
-          Add Vendor
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button 
+            variant="outlined" 
+            startIcon={<FileDownload />}
+            onClick={(e) => setExportAnchorEl(e.currentTarget)}
+          >
+            Export
+          </Button>
+          <Menu
+            anchorEl={exportAnchorEl}
+            open={Boolean(exportAnchorEl)}
+            onClose={() => setExportAnchorEl(null)}
+          >
+            <MenuItem onClick={exportVendorsToExcel}>
+              <Download sx={{ mr: 1 }} />
+              Export Vendors List
+            </MenuItem>
+            <MenuItem onClick={exportToExcel} disabled={!selectedVendor}>
+              <Download sx={{ mr: 1 }} />
+              Export Transactions
+            </MenuItem>
+          </Menu>
+          <Button 
+            variant="contained" 
+            startIcon={<Add />}
+            onClick={() => openVendorDialog()}
+          >
+            Add Vendor
+          </Button>
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
