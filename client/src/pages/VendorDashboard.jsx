@@ -95,10 +95,16 @@ const VendorDashboard = () => {
   const fetchVendors = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/vendors`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setVendors(response.data || []);
+      const [vendorsRes, transactionsRes] = await Promise.all([
+        axios.get(`${API_URL}/vendors`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/transactions?limit=5`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+      setVendors(vendorsRes.data || []);
+      setTransactions(transactionsRes.data || []);
     } catch (error) {
       console.error('Error fetching vendors:', error);
       showSnackbar('Error fetching vendors', 'error');
@@ -110,7 +116,7 @@ const VendorDashboard = () => {
   const fetchTransactions = async (vendorId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/vendors/${vendorId}/transactions`, {
+      const response = await axios.get(`${API_URL}/vendors/${vendorId}/transactions?limit=5`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTransactions(response.data || []);
@@ -320,8 +326,8 @@ const VendorDashboard = () => {
       <Grid container spacing={3}>
         {/* Vendor List */}
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
+          <Card sx={{ height: 'calc(100vh - 180px)', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               <Typography variant="h6" gutterBottom>
                 Vendors ({vendors.length})
               </Typography>
@@ -331,7 +337,7 @@ const VendorDashboard = () => {
               ) : vendors.length === 0 ? (
                 <Typography color="text.secondary">No vendors yet. Add one to get started.</Typography>
               ) : (
-                <Box sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <Box sx={{ maxHeight: 'calc(100% - 40px)', overflowY: 'auto' }}>
                   {vendors.map((vendor) => (
                     <Paper 
                       key={vendor.id} 
@@ -387,8 +393,8 @@ const VendorDashboard = () => {
         {/* Transaction Details */}
         <Grid item xs={12} md={8}>
           {selectedVendor ? (
-            <Card sx={{ height: '100%' }}>
-              <CardContent>
+            <Card sx={{ height: 'calc(100vh - 180px)', display: 'flex', flexDirection: 'column' }}>
+              <CardContent sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Box>
                     <Typography variant="h6">
@@ -447,57 +453,59 @@ const VendorDashboard = () => {
                 </Grid>
 
                 {/* Transaction Table */}
-                <TableContainer component={Paper}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: 'grey.100' }}>
-                        <TableCell><strong>Date</strong></TableCell>
-                        <TableCell><strong>Type</strong></TableCell>
-                        <TableCell><strong>Amount</strong></TableCell>
-                        <TableCell><strong>Description</strong></TableCell>
-                        <TableCell><strong>Reference</strong></TableCell>
-                        <TableCell><strong>Balance After</strong></TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {transactions.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                            No transactions found
-                          </TableCell>
+                <Box sx={{ maxHeight: 'calc(100% - 200px)', overflowY: 'auto' }}>
+                  <TableContainer component={Paper}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow sx={{ bgcolor: 'grey.100' }}>
+                          <TableCell><strong>Date</strong></TableCell>
+                          <TableCell><strong>Type</strong></TableCell>
+                          <TableCell><strong>Amount</strong></TableCell>
+                          <TableCell><strong>Description</strong></TableCell>
+                          <TableCell><strong>Reference</strong></TableCell>
+                          <TableCell><strong>Balance After</strong></TableCell>
                         </TableRow>
-                      ) : (
-                        transactions
-                          .filter(t => currentTab === 0 || (currentTab === 1 && t.type === 'debit') || (currentTab === 2 && t.type === 'credit'))
-                          .map((transaction) => (
-                          <TableRow key={transaction.id}>
-                            <TableCell>{formatDate(transaction.createdAt)}</TableCell>
-                            <TableCell>
-                              <Chip 
-                                label={transaction.type.toUpperCase()}
-                                color={transaction.type === 'debit' ? 'error' : 'success'}
-                                size="small"
-                              />
+                      </TableHead>
+                      <TableBody>
+                        {transactions.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                              No transactions found
                             </TableCell>
-                            <TableCell sx={{ fontWeight: 'bold' }}>
-                              ₹{formatCurrency(transaction.amount)}
-                            </TableCell>
-                            <TableCell>{transaction.description || '-'}</TableCell>
-                            <TableCell>{transaction.reference || '-'}</TableCell>
-                            <TableCell>₹{formatCurrency(transaction.balanceAfter)}</TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        ) : (
+                          transactions
+                            .filter(t => currentTab === 0 || (currentTab === 1 && t.type === 'debit') || (currentTab === 2 && t.type === 'credit'))
+                            .map((transaction) => (
+                            <TableRow key={transaction.id}>
+                              <TableCell>{formatDate(transaction.createdAt)}</TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={transaction.type.toUpperCase()}
+                                  color={transaction.type === 'debit' ? 'error' : 'success'}
+                                  size="small"
+                                />
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 'bold' }}>
+                                ₹{formatCurrency(transaction.amount)}
+                              </TableCell>
+                              <TableCell>{transaction.description || '-'}</TableCell>
+                              <TableCell>{transaction.reference || '-'}</TableCell>
+                              <TableCell>₹{formatCurrency(transaction.balanceAfter)}</TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
               </CardContent>
             </Card>
           ) : (
-            <Card sx={{ height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', pb: 8 }}>
+            <Card sx={{ height: 'calc(100vh - 180px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Box sx={{ textAlign: 'center', py: 5 }}>
-                <Store sx={{ fontSize: 60, color: 'grey.400', mb: 2 }} />
-                <Typography variant="h6" color="text.secondary">
+                <Store sx={{ fontSize: 100, color: 'grey.400', mb: 3 }} />
+                <Typography variant="h4" color="text.secondary">
                   Vendor Transactions - Select a vendor to view transactions
                 </Typography>
               </Box>
