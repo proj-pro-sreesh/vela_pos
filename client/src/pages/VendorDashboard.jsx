@@ -55,6 +55,7 @@ const VendorDashboard = () => {
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [vendorTransactions, setVendorTransactions] = useState([]);
   const [currentTab, setCurrentTab] = useState(0);
   const [vendorDialogOpen, setVendorDialogOpen] = useState(false);
   const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
@@ -82,6 +83,22 @@ const VendorDashboard = () => {
     fetchVendors();
   }, []);
 
+  const handleSelectVendor = async (vendor) => {
+    try {
+      const token = localStorage.getItem('token');
+      // Clear previous vendor transactions to avoid showing old data
+      setVendorTransactions([]);
+      // Fetch latest vendor data including balance
+      const response = await axios.get(`${API_URL}/vendors/${vendor.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSelectedVendor(response.data);
+    } catch (error) {
+      console.error('Error fetching vendor details:', error);
+      setSelectedVendor(vendor);
+    }
+  };
+
   useEffect(() => {
     if (selectedVendor) {
       fetchTransactions(selectedVendor.id);
@@ -99,7 +116,7 @@ const VendorDashboard = () => {
         axios.get(`${API_URL}/vendors`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get(`${API_URL}/transactions?limit=5`, {
+        axios.get(`${API_URL}/transactions?limit=100`, {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -116,10 +133,17 @@ const VendorDashboard = () => {
   const fetchTransactions = async (vendorId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/vendors/${vendorId}/transactions?limit=5`, {
+      // Only update if the vendor ID matches the current selected vendor
+      const response = await axios.get(`${API_URL}/vendors/${vendorId}/transactions?limit=100`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setTransactions(response.data || []);
+      // Check if this is still the selected vendor before setting state
+      setSelectedVendor(current => {
+        if (current && String(current.id) === String(vendorId)) {
+          setVendorTransactions(response.data || []);
+        }
+        return current;
+      });
     } catch (error) {
       console.error('Error fetching transactions:', error);
       showSnackbar('Error fetching transactions', 'error');
@@ -181,13 +205,20 @@ const VendorDashboard = () => {
       showSnackbar('Transaction recorded successfully');
       setTransactionDialogOpen(false);
       setTransactionForm({ type: 'debit', amount: '', description: '', reference: '' });
-      fetchTransactions(selectedVendor.id);
-      fetchVendors(); // Refresh to get updated balance
-      // Refresh selected vendor
-      const updatedVendor = vendors.find(v => v.id === selectedVendor.id);
-      if (updatedVendor) {
-        setSelectedVendor(updatedVendor);
-      }
+      
+      // Refresh vendor and transactions
+      const vendorRes = await axios.get(`${API_URL}/vendors/${selectedVendor.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSelectedVendor(vendorRes.data);
+      
+      const transRes = await axios.get(`${API_URL}/vendors/${selectedVendor.id}/transactions?limit=100`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setVendorTransactions(transRes.data || []);
+      
+      // Also refresh vendors list
+      await fetchVendors();
     } catch (error) {
       console.error('Error creating transaction:', error);
       showSnackbar('Error creating transaction', 'error');
@@ -229,12 +260,12 @@ const VendorDashboard = () => {
 
   // Export to Excel
   const exportToExcel = () => {
-    if (!selectedVendor || transactions.length === 0) {
+    if (!selectedVendor || vendorTransactions.length === 0) {
       showSnackbar('No transactions to export', 'warning');
       return;
     }
 
-    const exportData = transactions.map(t => ({
+    const exportData = vendorTransactions.map(t => ({
       Date: formatDate(t.createdAt),
       Type: t.type.toUpperCase(),
       Amount: t.amount,
@@ -282,8 +313,12 @@ const VendorDashboard = () => {
     return 'default';
   };
 
-  const totalDebit = transactions.filter(t => t.type === 'debit').reduce((sum, t) => sum + t.amount, 0);
-  const totalCredit = transactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0);
+  const totalDebit = vendorTransactions
+    .filter(t => t.type?.toLowerCase() === 'debit')
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+  const totalCredit = vendorTransactions
+    .filter(t => t.type?.toLowerCase() === 'credit')
+    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -348,7 +383,7 @@ const VendorDashboard = () => {
                         bgcolor: selectedVendor?.id === vendor.id ? 'primary.light' : 'background.paper',
                         '&:hover': { bgcolor: 'action.hover' }
                       }}
-                      onClick={() => setSelectedVendor(vendor)}
+                      onClick={() => handleSelectVendor(vendor)}
                     >
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <Box>
@@ -467,14 +502,14 @@ const VendorDashboard = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {transactions.length === 0 ? (
+                        {vendorTransactions.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                               No transactions found
                             </TableCell>
                           </TableRow>
                         ) : (
-                          transactions
+                          vendorTransactions
                             .filter(t => currentTab === 0 || (currentTab === 1 && t.type === 'debit') || (currentTab === 2 && t.type === 'credit'))
                             .map((transaction) => (
                             <TableRow key={transaction.id}>

@@ -923,7 +923,7 @@ const deleteOrder = async (id) => {
 // Get all vendors
 const getAllVendors = async () => {
   if (useInMemory) {
-    return inMemoryStorage.vendors.map(v => ({ ...v }));
+    return inMemoryStorage.vendors.map(v => toObject(v));
   }
   const vendors = await Vendor.find().sort({ name: 1 });
   return vendors.map(toObject);
@@ -935,7 +935,7 @@ const getVendorById = async (id) => {
     const vendor = inMemoryStorage.vendors.find(v => 
       v.id === id || v._id === id || String(v.id) === String(id)
     );
-    return vendor ? { ...vendor } : null;
+    return vendor ? toObject(vendor) : null;
   }
   const vendor = await Vendor.findById(id);
   return vendor ? toObject(vendor) : null;
