@@ -7,7 +7,7 @@ import {
   FormControl, InputLabel, Select, Alert
 } from '@mui/material';
 import { 
-  Delete, Print, Person, LocalShipping, ShoppingCart, Edit, Search, Receipt 
+  Delete, Print, Person, LocalShipping, ShoppingCart, Edit, Search, Receipt, Star, FavoriteBorder, Favorite 
 } from '@mui/icons-material';
 import { tableAPI, orderAPI, menuAPI, reportAPI } from '../services/api';
 
@@ -47,6 +47,10 @@ export default function Tables() {
     const saved = localStorage.getItem('restaurantSettings');
     return saved ? JSON.parse(saved) : {};
   });
+  const [favoriteItems, setFavoriteItems] = useState(() => {
+    const saved = localStorage.getItem('favoriteMenuItems');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     fetchTables();
@@ -78,6 +82,28 @@ export default function Tables() {
     } catch (error) {
       console.error('Error fetching popular items:', error);
     }
+  };
+
+  const toggleFavorite = (menuItem) => {
+    setFavoriteItems(prev => {
+      const exists = prev.find(item => item._id === menuItem._id);
+      let newFavorites;
+      if (exists) {
+        newFavorites = prev.filter(item => item._id !== menuItem._id);
+      } else {
+        if (prev.length >= 10) {
+          newFavorites = [...prev.slice(1), menuItem];
+        } else {
+          newFavorites = [...prev, menuItem];
+        }
+      }
+      localStorage.setItem('favoriteMenuItems', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
+
+  const isFavorite = (itemId) => {
+    return favoriteItems.some(item => item._id === itemId);
   };
 
   const fetchActiveOrders = async () => {
@@ -634,9 +660,27 @@ export default function Tables() {
               <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
-                <input type="text" placeholder="Search menu items..." value={menuSearchQuery} onChange={(e) => setMenuSearchQuery(e.target.value)} style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }} />
+                <input type="text" placeholder="Search or add favorites..." value={menuSearchQuery} onChange={(e) => setMenuSearchQuery(e.target.value)} style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }} />
               </Box>
               
+              {!menuSearchQuery && favoriteItems.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {favoriteItems.slice(0, 10).map((item, index) => (
+                      <Chip 
+                        key={index} 
+                        label={item.name} 
+                        onClick={() => handleAddItem(item)} 
+                        onDelete={() => toggleFavorite(item)}
+                        deleteIcon={<Favorite />}
+                        sx={{ cursor: 'pointer', bgcolor: '#fff3e0', '&:hover': { bgcolor: '#ffe0b2' } }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
+
               {!menuSearchQuery && popularItems.length > 0 && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Top Selling Last Five Days:</Typography>
@@ -659,9 +703,14 @@ export default function Tables() {
                           {allMatchingItems.map(item => (
                             <Grid item xs={6} key={item._id}>
                               <Card variant="outlined" sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => handleAddItem(item)}>
-                                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                                  <Typography variant="body2">{item.name}</Typography>
-                                  <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                                <CardContent sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:last-child': { pb: 1 } }}>
+                                  <Box>
+                                    <Typography variant="body2">{item.name}</Typography>
+                                    <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                                  </Box>
+                                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleFavorite(item); }}>
+                                    {isFavorite(item._id) ? <Favorite sx={{ color: '#f44336' }} /> : <FavoriteBorder />}
+                                  </IconButton>
                                 </CardContent>
                               </Card>
                             </Grid>
@@ -683,9 +732,14 @@ export default function Tables() {
                       }).map(item => (
                         <Grid item xs={6} key={item._id}>
                           <Card variant="outlined" sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => handleAddItem(item)}>
-                            <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                              <Typography variant="body2">{item.name}</Typography>
-                              <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                            <CardContent sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:last-child': { pb: 1 } }}>
+                              <Box>
+                                <Typography variant="body2">{item.name}</Typography>
+                                <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                              </Box>
+                              <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleFavorite(item); }}>
+                                {isFavorite(item._id) ? <Favorite sx={{ color: '#f44336' }} /> : <FavoriteBorder />}
+                              </IconButton>
                             </CardContent>
                           </Card>
                         </Grid>
@@ -740,8 +794,25 @@ export default function Tables() {
               <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
-                <input type="text" placeholder="Search menu items..." value={editMenuSearchQuery} onChange={(e) => setEditMenuSearchQuery(e.target.value)} style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }} />
+                <input type="text" placeholder="Search or add favorites..." value={editMenuSearchQuery} onChange={(e) => setEditMenuSearchQuery(e.target.value)} style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }} />
               </Box>
+              {!editMenuSearchQuery && favoriteItems.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {favoriteItems.slice(0, 10).map((item, index) => (
+                      <Chip 
+                        key={index} 
+                        label={item.name} 
+                        onClick={() => handleEditAddItem(item)} 
+                        onDelete={() => toggleFavorite(item)}
+                        deleteIcon={<Favorite />}
+                        sx={{ cursor: 'pointer', bgcolor: '#fff3e0', '&:hover': { bgcolor: '#ffe0b2' } }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
               {!editMenuSearchQuery && popularItems.length > 0 && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Top Selling Last Five Days:</Typography>
@@ -763,9 +834,14 @@ export default function Tables() {
                           {allMatchingItems.map(item => (
                             <Grid item xs={6} key={item._id}>
                               <Card variant="outlined" sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => handleEditAddItem(item)}>
-                                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-                                  <Typography variant="body2">{item.name}</Typography>
-                                  <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                                <CardContent sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:last-child': { pb: 1 } }}>
+                                  <Box>
+                                    <Typography variant="body2">{item.name}</Typography>
+                                    <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                                  </Box>
+                                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleFavorite(item); }}>
+                                    {isFavorite(item._id) ? <Favorite sx={{ color: '#f44336' }} /> : <FavoriteBorder />}
+                                  </IconButton>
                                 </CardContent>
                               </Card>
                             </Grid>
@@ -787,9 +863,14 @@ export default function Tables() {
                       }).map(item => (
                         <Grid item xs={6} key={item._id}>
                           <Card variant="outlined" sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' } }} onClick={() => handleEditAddItem(item)}>
-                            <CardContent sx={{ p: 1, '&:last-child': { pb: 1 }}}>
-                              <Typography variant="body2">{item.name}</Typography>
-                              <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                            <CardContent sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:last-child': { pb: 1 }}}>
+                              <Box>
+                                <Typography variant="body2">{item.name}</Typography>
+                                <Typography variant="caption" color="text.secondary">₹{item.price}</Typography>
+                              </Box>
+                              <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleFavorite(item); }}>
+                                {isFavorite(item._id) ? <Favorite sx={{ color: '#f44336' }} /> : <FavoriteBorder />}
+                              </IconButton>
                             </CardContent>
                           </Card>
                         </Grid>

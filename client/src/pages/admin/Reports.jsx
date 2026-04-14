@@ -661,7 +661,7 @@ const Reports = () => {
       {popularItems.length > 0 && (
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Typography variant="h6" sx={{ mb: 2 }}>Top Selling Items</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>Selling Items</Typography>
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -672,7 +672,7 @@ const Reports = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {popularItems.slice(0, 10).map((item, index) => (
+                  {popularItems.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{item.name || 'Unknown Item'}</TableCell>

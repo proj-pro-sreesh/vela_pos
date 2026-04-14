@@ -30,7 +30,9 @@ import {
   ShoppingCart,
   Send,
   Print,
-  Search
+  Search,
+  FavoriteBorder,
+  Favorite
 } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
 import { menuAPI, tableAPI, orderAPI } from '../services/api';
@@ -51,6 +53,10 @@ const POS = () => {
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('restaurantSettings');
     return saved ? JSON.parse(saved) : {};
+  });
+  const [favoriteItems, setFavoriteItems] = useState(() => {
+    const saved = localStorage.getItem('favoriteMenuItems');
+    return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
@@ -98,6 +104,28 @@ const POS = () => {
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const toggleFavorite = (menuItem) => {
+    setFavoriteItems(prev => {
+      const exists = prev.find(item => item._id === menuItem._id);
+      let newFavorites;
+      if (exists) {
+        newFavorites = prev.filter(item => item._id !== menuItem._id);
+      } else {
+        if (prev.length >= 10) {
+          newFavorites = [...prev.slice(1), menuItem];
+        } else {
+          newFavorites = [...prev, menuItem];
+        }
+      }
+      localStorage.setItem('favoriteMenuItems', JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
+
+  const isFavorite = (itemId) => {
+    return favoriteItems.some(item => item._id === itemId);
+  };
 
   const handleSubmitOrder = async () => {
     if (!selectedTable) {
@@ -188,12 +216,30 @@ const POS = () => {
               <Search sx={{ color: 'text.secondary', mr: 1 }} />
               <input
                 type="text"
-                placeholder="Search menu items..."
+                placeholder="Search or add favorites..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }}
               />
             </Box>
+            
+            {!searchQuery && favoriteItems.length > 0 && (
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {favoriteItems.slice(0, 10).map((item, index) => (
+                    <Chip 
+                      key={index} 
+                      label={item.name} 
+                      onClick={() => addToCart(item)} 
+                      onDelete={() => toggleFavorite(item)}
+                      deleteIcon={<Favorite />}
+                      sx={{ cursor: 'pointer', bgcolor: '#fff3e0', '&:hover': { bgcolor: '#ffe0b2' } }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Box>
 
           {searchQuery ? (
@@ -209,10 +255,15 @@ const POS = () => {
                         sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, opacity: item.isAvailable ? 1 : 0.5 }}
                         onClick={() => item.isAvailable && addToCart(item)}
                       >
-                        <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                          <Typography variant="body2" fontWeight="bold" noWrap>{item.name}</Typography>
-                          <Typography variant="caption" color="text.secondary" display="block" noWrap>{item.description}</Typography>
-                          <Typography variant="body2" color="primary" fontWeight="bold">Rs. {item.price}</Typography>
+                        <CardContent sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:last-child': { pb: 1.5 } }}>
+                          <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                            <Typography variant="body2" fontWeight="bold" noWrap>{item.name}</Typography>
+                            <Typography variant="caption" color="text.secondary" display="block" noWrap>{item.description}</Typography>
+                            <Typography variant="body2" color="primary" fontWeight="bold">Rs. {item.price}</Typography>
+                          </Box>
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleFavorite(item); }}>
+                            {isFavorite(item._id) ? <Favorite sx={{ color: '#f44336' }} /> : <FavoriteBorder />}
+                          </IconButton>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -235,10 +286,15 @@ const POS = () => {
                         sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, opacity: item.isAvailable ? 1 : 0.5 }}
                         onClick={() => item.isAvailable && addToCart(item)}
                       >
-                        <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                          <Typography variant="body2" fontWeight="bold" noWrap>{item.name}</Typography>
-                          <Typography variant="caption" color="text.secondary" display="block" noWrap>{item.description}</Typography>
-                          <Typography variant="body2" color="primary" fontWeight="bold">Rs. {item.price}</Typography>
+                        <CardContent sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', '&:last-child': { pb: 1.5 } }}>
+                          <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                            <Typography variant="body2" fontWeight="bold" noWrap>{item.name}</Typography>
+                            <Typography variant="caption" color="text.secondary" display="block" noWrap>{item.description}</Typography>
+                            <Typography variant="body2" color="primary" fontWeight="bold">Rs. {item.price}</Typography>
+                          </Box>
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleFavorite(item); }}>
+                            {isFavorite(item._id) ? <Favorite sx={{ color: '#f44336' }} /> : <FavoriteBorder />}
+                          </IconButton>
                         </CardContent>
                       </Card>
                     </Grid>
