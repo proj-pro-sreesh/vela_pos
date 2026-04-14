@@ -52,6 +52,20 @@ if %errorlevel% neq 0 (
 )
 echo.
 
+:: ========================================
+:: CLEANUP - Delete old MongoDB logs (keep last 14 days)
+:: ========================================
+echo ========================================
+echo    Cleaning up old MongoDB logs...
+echo ========================================
+echo.
+
+:: Delete log files older than 14 days in data\log directory
+forfiles /P "%PROJECT_ROOT%\data\log" /S /D -14 /C "cmd /c del @path" 2>nul
+
+echo Old MongoDB logs (older than 14 days) have been deleted.
+echo.
+
 :: Install server dependencies
 cd /d "%PROJECT_ROOT%\server"
 echo Installing server dependencies...
@@ -87,6 +101,7 @@ echo.
 echo MongoDB is running on port 27017 with data stored locally
 echo.
 echo A database backup was created before starting
+echo Backups older than 14 days will be automatically removed
 echo.
 echo Two new windows will open for the server and client.
 echo Both windows must remain open while using the application.
