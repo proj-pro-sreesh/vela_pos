@@ -20,7 +20,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Chip
+  Chip,
+  CircularProgress
 } from '@mui/material';
 import { Add, Edit, Delete, Refresh } from '@mui/icons-material';
 import { userAPI } from '../../services/api';
@@ -30,18 +31,22 @@ const UserManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [form, setForm] = useState({ username: '', password: '', name: '', role: 'waiter' });
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (showLoading = true) => {
     try {
+      setLoading(showLoading);
+      setError(null);
       const res = await userAPI.getAll();
       setUsers(res.data);
     } catch (error) {
       console.error('Error:', error);
+      setError('Failed to load users. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -114,16 +119,32 @@ const UserManagement = () => {
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
+  if (loading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+      <CircularProgress />
+    </Box>
+  );
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h5">User Management</Typography>
-        <Button startIcon={<Add />} variant="contained" onClick={() => openDialog()}>
-          Add User
-        </Button>
+        <Box>
+          <Button startIcon={<Refresh />} onClick={() => fetchUsers()} sx={{ mr: 1 }}>
+            Refresh
+          </Button>
+          <Button startIcon={<Add />} variant="contained" onClick={() => openDialog()}>
+            Add User
+          </Button>
+        </Box>
       </Box>
+
+      {error && (
+        <Box sx={{ mb: 2, p: 2, bgcolor: 'error.light', borderRadius: 1 }}>
+          <Typography color="error">{error}</Typography>
+          <Button size="small" onClick={() => fetchUsers()}>Retry</Button>
+        </Box>
+      )}
 
       <TableContainer component={Paper}>
         <Table>
@@ -137,8 +158,15 @@ const UserManagement = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map(user => (
-              <TableRow key={user._id}>
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <Typography color="text.secondary">No users found</Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map(user => (
+                <TableRow key={user._id}>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>
@@ -161,7 +189,8 @@ const UserManagement = () => {
                   )}
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
