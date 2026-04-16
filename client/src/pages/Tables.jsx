@@ -657,8 +657,9 @@ export default function Tables() {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
+              <Box sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
                 <input type="text" placeholder="Search or add favorites..." value={menuSearchQuery} onChange={(e) => setMenuSearchQuery(e.target.value)} style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }} />
               </Box>
@@ -748,13 +749,15 @@ export default function Tables() {
                   </Box>
                 ))
               )}
+              </Box>
             </Grid>
             <Grid item xs={12} md={5}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
-              {orderItems.length === 0 ? (
-                <Typography color="text.secondary">No items added</Typography>
-              ) : (
-                <Box>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
+                {orderItems.length === 0 ? (
+                  <Typography color="text.secondary">No items added</Typography>
+                ) : (
+                  <Box>
                   {orderItems.map(item => (
                     <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Box>
@@ -773,6 +776,7 @@ export default function Tables() {
                   <Typography variant="h6">Total: ₹{calculateTotal()}</Typography>
                 </Box>
               )}
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>
@@ -881,11 +885,12 @@ export default function Tables() {
               )}
             </Grid>
             <Grid item xs={12} md={5}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
-              {editingOrderItems.length === 0 ? (
-                <Typography color="text.secondary">No items added</Typography>
-              ) : (
-                <Box>
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
+                {editingOrderItems.length === 0 ? (
+                  <Typography color="text.secondary">No items added</Typography>
+                ) : (
+                  <Box>
                   {editingOrderItems.map(item => (
                     <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Box>
@@ -904,6 +909,7 @@ export default function Tables() {
                   <Typography variant="h6">Total: ₹{calculateEditTotal()}</Typography>
                 </Box>
               )}
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>
