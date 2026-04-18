@@ -594,7 +594,7 @@ app.get('/api/reports/popular-items', auth, rbac('*'), async (req, res) => {
     });
     
     const sorted = Object.values(itemCount).sort((a, b) => b.quantity - a.quantity);
-    res.json(sorted.slice(0, 10));
+    res.json(sorted);
   } catch (error) {
     res.status(500).json({ message: 'Error generating popular items report' });
   }
