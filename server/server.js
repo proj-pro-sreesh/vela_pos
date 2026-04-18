@@ -281,10 +281,12 @@ app.post('/api/orders', auth, async (req, res) => {
     if (tableId) {
       const tables = await getAllTables();
       console.log('Found tables:', tables.length);
+      // First try to find by ID, then try by tableNumber as fallback
       table = tables.find(t => 
         String(t._id) === String(tableId) || 
         String(t.id) === String(tableId) ||
-        t.id === parseInt(tableId)
+        t.id === parseInt(tableId) ||
+        t.tableNumber === req.body.tableNumber  // Fallback by tableNumber
       );
       console.log('Found table:', table);
     }

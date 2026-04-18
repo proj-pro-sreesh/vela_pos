@@ -105,10 +105,18 @@ const findUserById = async (id) => {
     const user = inMemoryStorage.users.find(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
     return user ? { ...user } : null;
   }
+  // Use raw MongoDB to handle string _id from restored data
+  const mongoose = require('mongoose');
   try {
-    const user = await User.findOne({ $or: [{ _id: id }, { id: id }] });
-    return user ? toObject(user) : null;
+    const collection = mongoose.connection.db.collection('users');
+    const user = await collection.findOne({ $or: [{ _id: id }, { id: id }] });
+    if (user) {
+      const { _id, id, username, name, role, isActive, ...rest } = user;
+      return { _id: String(_id), id: String(id || _id), username, name, role, isActive, ...rest };
+    }
+    return null;
   } catch (e) {
+    console.error('findUserById error:', e.message);
     return null;
   }
 };
@@ -628,7 +636,7 @@ const createOrder = async (data) => {
   const isTakeaway = data.tableId === '0' || data.tableId === 0 || data.isTakeaway;
   
   // Get table info if not takeaway
-  let tableNumber = 'TAKEAWAY';
+  let tableNumber = data.tableNumber || (isTakeaway ? 'TAKEAWAY' : '');
   let tableId = null;
   
   if (!isTakeaway && data.tableId) {
@@ -642,10 +650,13 @@ const createOrder = async (data) => {
         table.status = 'occupied';
       }
     } else {
-      // Handle both id and _id for MongoDB
-      const table = await Table.findOne(
-        { $or: [{ _id: data.tableId }, { id: parseInt(data.tableId) }] }
-      );
+      // Handle both id and _id for MongoDB - also try string to ObjectId conversion
+      let query = { $or: [{ _id: data.tableId }, { id: parseInt(data.tableId) }] };
+      // Also try matching by tableNumber as fallback
+      if (data.tableNumber) {
+        query.$or.push({ tableNumber: data.tableNumber });
+      }
+      const table = await Table.findOne(query);
       if (table) {
         tableNumber = table.tableNumber;
         tableId = table._id;

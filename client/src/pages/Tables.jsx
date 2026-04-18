@@ -133,12 +133,30 @@ export default function Tables() {
     try {
       const response = await menuAPI.getAll();
       setMenuItems(response.data);
-      const uniqueCategories = [...new Set(response.data.map(item => {
+      // Extract categories from menu items
+      const itemCategories = [...new Set(response.data.map(item => {
         if (typeof item.category === 'string') return item.category;
         if (item.category && typeof item.category === 'object') return item.category.name;
         return null;
       }).filter(Boolean))];
-      setCategories(uniqueCategories);
+      
+      // Also fetch categories from API to have a complete list
+      let apiCategories = [];
+      try {
+        const catResponse = await fetch('http://localhost:5000/api/categories', {
+          headers: { 'Authorization': localStorage.getItem('token') }
+        });
+        if (catResponse.ok) {
+          const catData = await catResponse.json();
+          apiCategories = catData.map(c => c.name);
+        }
+      } catch (e) {
+        console.log('Could not fetch categories:', e);
+      }
+      
+      // Use API categories if item categories is empty, otherwise use item categories
+      const uniqueCategories = itemCategories.length > 0 ? itemCategories : apiCategories;
+      setCategories(uniqueCategories.length > 0 ? uniqueCategories : ['All']);
     } catch (error) {
       console.error('Error fetching menu items:', error);
     }
@@ -652,7 +670,7 @@ export default function Tables() {
         </Box>
       )}
 
-      <Dialog open={orderDialogOpen} onClose={() => setOrderDialogOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={orderDialogOpen} onClose={() => { setOrderDialogOpen(false); setOrderItems([]); setTakeawayName(''); setMenuSearchQuery(''); }} maxWidth="md" fullWidth>
         <DialogTitle>{selectedTable?.id === 'takeaway' ? 'Takeaway Order' : `Order - Table ${selectedTable?.tableNumber}`}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
@@ -729,6 +747,8 @@ export default function Tables() {
                       {menuItems.filter(item => {
                         if (typeof item.category === 'string') return item.category === category;
                         if (item.category && typeof item.category === 'object') return item.category.name === category;
+                        // Handle null/unassigned categories - show them in all categories
+                        if (!item.category) return true;
                         return false;
                       }).map(item => (
                         <Grid item xs={6} key={item._id}>
@@ -781,7 +801,7 @@ export default function Tables() {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOrderDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setOrderDialogOpen(false); setOrderItems([]); setTakeawayName(''); }}>Cancel</Button>
           {selectedTable?.id === 'takeaway' ? (
             <Button variant="contained" onClick={() => handlePlaceOrder(true)} disabled={orderItems.length === 0}>Place Takeaway Order</Button>
           ) : (
@@ -790,7 +810,7 @@ export default function Tables() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={editOrderDialogOpen} onClose={() => setEditOrderDialogOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={editOrderDialogOpen} onClose={() => { setEditOrderDialogOpen(false); setEditingOrder(null); }} maxWidth="md" fullWidth>
         <DialogTitle>Edit Order - {editingOrder?.orderNumber || editingOrder?._id?.slice(-6)}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
@@ -863,6 +883,8 @@ export default function Tables() {
                       {menuItems.filter(item => {
                         if (typeof item.category === 'string') return item.category === category;
                         if (item.category && typeof item.category === 'object') return item.category.name === category;
+                        // Handle null/unassigned categories - show them in all categories
+                        if (!item.category) return true;
                         return false;
                       }).map(item => (
                         <Grid item xs={6} key={item._id}>
@@ -919,7 +941,7 @@ export default function Tables() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={deleteOrderDialogOpen} onClose={() => setDeleteOrderDialogOpen(false)}>
+      <Dialog open={deleteOrderDialogOpen} onClose={() => { setDeleteOrderDialogOpen(false); setDeletingOrder(null); }}>
         <DialogTitle>Confirm Delete Order</DialogTitle>
         <DialogContent>
           <Typography>Are you sure you want to delete this order? This action cannot be undone.</Typography>
@@ -930,7 +952,7 @@ export default function Tables() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={billDialogOpen} onClose={() => setBillDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={billDialogOpen} onClose={() => { setBillDialogOpen(false); setBillingOrder(null); setShowBillPrinted(false); setPaymentMethod('cash'); }} maxWidth="sm" fullWidth>
         <DialogTitle>Process Payment</DialogTitle>
         <DialogContent>
           {billingOrder && (

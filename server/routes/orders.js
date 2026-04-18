@@ -7,7 +7,6 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { status, paymentStatus, startDate, endDate } = req.query;
-    console.log('Get all orders - params:', { status, paymentStatus, startDate, endDate });
     const orders = await db.getAllOrders({ status, paymentStatus, startDate, endDate });
     res.json(orders);
   } catch (error) {
@@ -42,9 +41,11 @@ router.get('/:id', (req, res) => {
 // Create new order
 router.post('/', (req, res) => {
   try {
-    const { tableId, tableNumber, waiterId, customerName, customerPhone, items, subtotal, discount, discountType, total, notes } = req.body;
+    const { tableId, tableNumber, waiterId, customerName, customerPhone, items, subtotal, discount, discountType, total, notes, isTakeaway } = req.body;
     
-    if (!tableId || !items || items.length === 0) {
+    // Allow tableId to be null/empty for takeaway orders
+    const requiresTable = !isTakeaway && (tableId === undefined || tableId === null || tableId === '');
+    if (requiresTable || !items || items.length === 0) {
       return res.status(400).json({ message: 'Table and items are required' });
     }
 
@@ -72,7 +73,8 @@ router.post('/', (req, res) => {
       discount: discount || 0,
       discountType: discountType || 'percentage',
       total,
-      notes
+      notes,
+      isTakeaway
     });
 
     res.status(201).json(order);
@@ -122,9 +124,7 @@ router.patch('/:id/status', (req, res) => {
 // Delete order
 router.delete('/:id', async (req, res) => {
   try {
-    console.log('DELETE /orders/:id called with id:', req.params.id);
     const result = await db.deleteOrder(req.params.id);
-    console.log('Delete result:', result);
     if (!result) return res.status(404).json({ message: 'Order not found' });
     
     // Emit socket event for order deletion

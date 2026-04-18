@@ -195,7 +195,15 @@ const VendorDashboard = () => {
   };
 
   const handleSaveTransaction = async () => {
-    if (!selectedVendor) return;
+    if (!selectedVendor || !selectedVendor.id) {
+      showSnackbar('Please select a vendor first', 'error');
+      return;
+    }
+    
+    if (!transactionForm.amount || parseFloat(transactionForm.amount) <= 0) {
+      showSnackbar('Please enter a valid amount', 'error');
+      return;
+    }
     
     try {
       const token = localStorage.getItem('token');
@@ -323,7 +331,7 @@ const VendorDashboard = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
           Vendor Transactions
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -363,7 +371,7 @@ const VendorDashboard = () => {
         <Grid item xs={12} md={4}>
           <Card sx={{ height: 'calc(100vh - 180px)', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="body1" gutterBottom>
                 Vendors ({vendors.length})
               </Typography>
               
@@ -432,7 +440,7 @@ const VendorDashboard = () => {
               <CardContent sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Box>
-                    <Typography variant="h6">
+                    <Typography variant="subtitle1">
                       {selectedVendor.name}
                     </Typography>
                     <Chip 
@@ -540,7 +548,7 @@ const VendorDashboard = () => {
             <Card sx={{ height: 'calc(100vh - 180px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Box sx={{ textAlign: 'center', py: 5 }}>
                 <Store sx={{ fontSize: 100, color: 'grey.400', mb: 3 }} />
-                <Typography variant="h4" color="text.secondary">
+                <Typography variant="body1" color="text.secondary">
                   Vendor Transactions - Select a vendor to view transactions
                 </Typography>
               </Box>

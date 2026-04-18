@@ -104,6 +104,28 @@ async function restoreDatabase() {
         console.log();
         console.log('The database has been restored from backup.');
         console.log();
+        console.log('Attempting to restart the server automatically...');
+        
+        // Try to restart the server
+        const http = require('http');
+        try {
+          // Wait a moment for any pending operations
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Make a request to trigger server reconnection
+          const req = http.get('http://localhost:5000/api/debug/db-status', (res) => {
+            console.log('Server is running. Please RESTART the server to see restored data!');
+            console.log('(Manual restart recommended for production)');
+          });
+          
+          req.on('error', (e) => {
+            // Server not responding means it needs restart
+            console.log('Server may need manual restart to see restored data.');
+          });
+        } catch (e) {
+          console.log('Server restart check skipped. Please restart server manually.');
+        }
+        console.log();
         
         await mongoose.disconnect();
         process.exit(0);

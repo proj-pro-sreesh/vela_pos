@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
   table: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Table',
-    required: function() { return !this.isTakeaway; }
+    required: false
   },
   tableNumber: String,
   isTakeaway: {
