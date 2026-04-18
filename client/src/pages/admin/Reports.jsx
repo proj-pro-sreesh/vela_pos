@@ -79,9 +79,11 @@ const Reports = () => {
     fetchBillingHistory();
   }, [dateRange, customStartDate, customEndDate]);
 
-  // Fetch billing history when tab changes to Billing History or Payment Report
+  // Fetch billing history and reports when tab changes
   useEffect(() => {
-    if (currentTab === 1 || currentTab === 2) {
+    if (currentTab === 1) {
+      fetchReports();
+    } else if (currentTab === 3) {
       fetchBillingHistory();
     }
   }, [currentTab, dateRange, customStartDate, customEndDate]);
@@ -566,6 +568,7 @@ const Reports = () => {
 
       <Tabs value={currentTab} onChange={(e, v) => setCurrentTab(v)} sx={{ mb: 3 }}>
         <Tab label="Summary" />
+        <Tab label="Selling Items" />
         <Tab label="Payment Report" />
         <Tab label={`Billing History (${billingHistory.length})`} />
       </Tabs>
@@ -656,39 +659,52 @@ const Reports = () => {
           </Card>
         </Grid>
       </Grid>
-
-      {/* Popular Items Summary */}
-      {popularItems.length > 0 && (
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 2 }}>Selling Items</Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>#</TableCell>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell align="right">Quantity Sold</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {popularItems.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{item.name || 'Unknown Item'}</TableCell>
-                      <TableCell align="right">{item.quantity || 0}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </CardContent>
-        </Card>
-      )}
       </>)}
 
-      {/* Payment Report Tab */}
+      {/* Selling Items Tab */}
       {currentTab === 1 && (
+        <>
+        <Typography variant="h6" sx={{ mb: 3 }}>Selling Items Report</Typography>
+        {popularItems.length > 0 ? (
+          <Card>
+            <CardContent>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>#</TableCell>
+                      <TableCell>Item Name</TableCell>
+                      <TableCell align="right">Quantity Sold</TableCell>
+                      <TableCell align="right">Revenue</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {popularItems.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{item.name || 'Unknown Item'}</TableCell>
+                        <TableCell align="right">{item.quantity || 0}</TableCell>
+                        <TableCell align="right">₹{formatCurrency(item.total || 0)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent>
+              <Typography variant="body1" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                No selling items data available for the selected period.
+              </Typography>
+            </CardContent>
+          </Card>
+        )}
+        </>)}
+
+      {/* Payment Report Tab */}
+      {currentTab === 2 && (
         <>
         <Typography variant="h6" sx={{ mb: 3 }}>Payment Method Report</Typography>
         <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -792,7 +808,7 @@ const Reports = () => {
       )}
 
       {/* Billing History Tab */}
-      {currentTab === 2 && (
+      {currentTab === 3 && (
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Typography variant="h6" sx={{ mb: 2 }}>Billing History</Typography>
