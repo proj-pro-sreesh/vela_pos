@@ -117,14 +117,21 @@ orderSchema.pre('save', async function(next) {
     const year = now.getFullYear();
     const dateStr = `${day}-${month}-${year}`;
     
-    // Find orders from today to get sequence number
+    // Find the highest order number for today
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const countToday = await mongoose.model('Order').countDocuments({
+    const lastOrderToday = await this.constructor.findOne({
       createdAt: { $gte: todayStart, $lt: todayEnd }
-    });
+    }).sort({ orderNumber: -1 });
     
-    this.orderNumber = `ORD-${dateStr}-${String(countToday + 1).padStart(4, '0')}`;
+    let nextSeq = 1;
+    if (lastOrderToday && lastOrderToday.orderNumber) {
+      const parts = lastOrderToday.orderNumber.split('-');
+      const lastSeq = parseInt(parts[parts.length - 1], 10);
+      nextSeq = lastSeq + 1;
+    }
+    
+    this.orderNumber = `ORD-${dateStr}-${String(nextSeq).padStart(4, '0')}`;
   }
   next();
 });

@@ -105,11 +105,16 @@ const findUserById = async (id) => {
     const user = inMemoryStorage.users.find(u => u.id === id || u._id === id || String(u.id) === String(id) || String(u._id) === String(id));
     return user ? { ...user } : null;
   }
-  // Use raw MongoDB to handle string _id from restored data
+  // Use raw MongoDB to handle both string and ObjectId _id
   const mongoose = require('mongoose');
   try {
     const collection = mongoose.connection.db.collection('users');
-    const user = await collection.findOne({ $or: [{ _id: id }, { id: id }] });
+    // Convert string ID to ObjectId if valid
+    let queryId = id;
+    if (typeof id === 'string' && mongoose.Types.ObjectId.isValid(id)) {
+      queryId = new mongoose.Types.ObjectId(id);
+    }
+    const user = await collection.findOne({ $or: [{ _id: queryId }, { id: id }] });
     if (user) {
       const { _id, id, username, name, role, isActive, ...rest } = user;
       return { _id: String(_id), id: String(id || _id), username, name, role, isActive, ...rest };
