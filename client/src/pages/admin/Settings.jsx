@@ -153,6 +153,37 @@ const Settings = () => {
           </Card>
         </Grid>
 
+        {/* Display Settings */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>Display Settings</Typography>
+              <Divider sx={{ mb: 2 }} />
+              
+              <FormControlLabel
+                control={
+                  <Switch 
+                    checked={settings.autoRefresh} 
+                    onChange={handleSwitchChange('autoRefresh')}
+                    name="autoRefresh"
+                  />
+                }
+                label="Auto-refresh data"
+              />
+              <TextField
+                fullWidth
+                label="Refresh Interval (seconds)"
+                name="refreshInterval"
+                type="number"
+                value={settings.refreshInterval}
+                onChange={handleChange}
+                margin="normal"
+                disabled={!settings.autoRefresh}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+
         {/* Billing Settings */}
         <Grid item xs={12} md={6}>
           <Card>
@@ -237,37 +268,6 @@ const Settings = () => {
                 margin="normal"
                 disabled
                 helperText="Thermal paper size (72x210mm = 3 inch x 8.3 inch roll)"
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Display Settings */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Display Settings</Typography>
-              <Divider sx={{ mb: 2 }} />
-              
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={settings.autoRefresh} 
-                    onChange={handleSwitchChange('autoRefresh')}
-                    name="autoRefresh"
-                  />
-                }
-                label="Auto-refresh data"
-              />
-              <TextField
-                fullWidth
-                label="Refresh Interval (seconds)"
-                name="refreshInterval"
-                type="number"
-                value={settings.refreshInterval}
-                onChange={handleChange}
-                margin="normal"
-                disabled={!settings.autoRefresh}
               />
             </CardContent>
           </Card>
