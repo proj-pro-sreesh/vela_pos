@@ -364,9 +364,9 @@ const Biller = () => {
           )}
         </Grid>
 
-        {/* Today's Summary */}
+        {/* Running Summary */}
         <Grid item xs={12} md={6}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Today's Summary</Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>Running Summary</Typography>
           
           <Card sx={{ mb: 2 }}>
             <CardContent>
