@@ -771,7 +771,7 @@ export default function Tables() {
               )}
               </Box>
             </Grid>
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={5} sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
                 {orderItems.length === 0 ? (
@@ -906,7 +906,7 @@ export default function Tables() {
                 ))
               )}
             </Grid>
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={5} sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
                 {editingOrderItems.length === 0 ? (
