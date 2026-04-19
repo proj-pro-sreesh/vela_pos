@@ -109,6 +109,26 @@ router.post('/:id/payment', (req, res) => {
   }
 });
 
+// Update order
+router.put('/:id', (req, res) => {
+  try {
+    const { items, subtotal, total, taxAmount, notes } = req.body;
+    const order = db.updateOrder(req.params.id, { items, subtotal, total, taxAmount, notes });
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    
+    // Emit socket event for order update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('order-updated', { orderId: order.id, orderNumber: order.orderNumber });
+    }
+    
+    res.json(order);
+  } catch (error) {
+    console.error('Error updating order:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Update order status
 router.patch('/:id/status', (req, res) => {
   try {

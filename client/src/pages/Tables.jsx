@@ -672,10 +672,10 @@ export default function Tables() {
 
       <Dialog open={orderDialogOpen} onClose={() => { setOrderDialogOpen(false); setOrderItems([]); setTakeawayName(''); setMenuSearchQuery(''); }} maxWidth="md" fullWidth>
         <DialogTitle>{selectedTable?.id === 'takeaway' ? 'Takeaway Order' : `Order - Table ${selectedTable?.tableNumber}`}</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ overflow: 'hidden' }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={7}>
-              <Box sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
+            <Grid item xs={12} md={7} sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
+              <Box>
                 <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
@@ -812,9 +812,9 @@ export default function Tables() {
 
       <Dialog open={editOrderDialogOpen} onClose={() => { setEditOrderDialogOpen(false); setEditingOrder(null); }} maxWidth="md" fullWidth>
         <DialogTitle>Edit Order - {editingOrder?.orderNumber || editingOrder?._id?.slice(-6)}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={7}>
+        <DialogContent sx={{ overflow: 'hidden' }}>
+          <Grid container spacing={2} sx={{ height: '100%' }}>
+            <Grid item xs={12} md={7} sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>Menu Items</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
