@@ -275,12 +275,12 @@ app.get('/api/orders/:id', auth, async (req, res) => {
 app.post('/api/orders', auth, async (req, res) => {
   try {
     const { tableId, customerName, customerPhone, items, notes, discount, discountType, taxRate } = req.body;
-    console.log('Creating order with tableId:', tableId, 'isTakeaway:', req.body.isTakeaway);
+
     
     let table = null;
     if (tableId) {
       const tables = await getAllTables();
-      console.log('Found tables:', tables.length);
+
       // First try to find by ID, then try by tableNumber as fallback
       table = tables.find(t => 
         String(t._id) === String(tableId) || 
@@ -288,11 +288,9 @@ app.post('/api/orders', auth, async (req, res) => {
         t.id === parseInt(tableId) ||
         t.tableNumber === req.body.tableNumber  // Fallback by tableNumber
       );
-      console.log('Found table:', table);
+      
     }
     const isTakeaway = parseInt(tableId) === 0 || req.body.isTakeaway;
-    console.log('isTakeaway:', isTakeaway, 'table:', table);
-    
     if (!table && !isTakeaway) return res.status(404).json({ message: 'Table not found' });
     
     let subtotal = 0;
@@ -304,7 +302,7 @@ app.post('/api/orders', auth, async (req, res) => {
     const taxAmount = taxableAmount * taxRateNum / 100;
     const total = taxableAmount + taxAmount;
     
-    console.log('About to create order with data:', { tableId, tableNumber: isTakeaway ? 'TAKEAWAY' : table?.tableNumber });
+
     const order = await createOrder({ 
       tableId: tableId, 
       tableNumber: isTakeaway ? 'TAKEAWAY' : table?.tableNumber, 
@@ -321,7 +319,7 @@ app.post('/api/orders', auth, async (req, res) => {
       notes, 
       isTakeaway 
     });
-    console.log('Order created:', order);
+
     
     res.status(201).json(order);
   } catch (error) {
@@ -334,17 +332,11 @@ app.post('/api/orders', auth, async (req, res) => {
 app.put('/api/orders/:id', auth, async (req, res) => {
   try {
     const { items, subtotal, total, taxAmount, notes } = req.body;
-    console.log('Update order called with id:', req.params.id);
-    
     const order = await updateOrder(req.params.id, { items, subtotal, total, taxAmount, notes });
     
     if (!order) {
-      console.log('Order not found for id:', req.params.id);
       return res.status(404).json({ message: 'Order not found' });
     }
-    
-    console.log('Order updated:', order);
-    
     // Emit socket event
     io.emit('order:updated', order);
     
@@ -359,17 +351,11 @@ app.put('/api/orders/:id', auth, async (req, res) => {
 app.patch('/api/orders/:id/status', auth, async (req, res) => {
   try {
     const { status } = req.body;
-    console.log('Update order status called with id:', req.params.id, 'status:', status);
-    
     const order = await updateOrder(req.params.id, { status });
     
     if (!order) {
-      console.log('Order not found for id:', req.params.id);
       return res.status(404).json({ message: 'Order not found' });
     }
-    
-    console.log('Order status updated:', order);
-    
     // Emit socket event
     io.emit('order:updated', order);
     
@@ -400,9 +386,7 @@ app.put('/api/orders/:id/payment', auth, async (req, res) => {
 // Delete order
 app.delete('/api/orders/:id', auth, async (req, res) => {
   try {
-    console.log('DELETE /api/orders/:id called with id:', req.params.id);
     const result = await deleteOrder(req.params.id);
-    console.log('Delete result:', result);
     if (!result) return res.status(404).json({ message: 'Order not found' });
     
     // Emit socket event for order deletion
@@ -514,8 +498,7 @@ const filterByDateRange = (items, range, startDate, endDate) => {
   let customStart = startDate ? new Date(startDate + 'T00:00:00.000') : null;
   let customEnd = endDate ? new Date(endDate + 'T23:59:59.999') : null;
   
-  console.log('filterByDateRange - raw startDate:', startDate, 'raw endDate:', endDate);
-  console.log('filterByDateRange - customStart:', customStart, 'customEnd:', customEnd);
+
   
   // Otherwise use range parameter
   if (!customStart && !customEnd) {
@@ -537,15 +520,10 @@ const filterByDateRange = (items, range, startDate, endDate) => {
 app.get('/api/reports/sales', auth, rbac('*'), async (req, res) => {
   try {
     const { range, startDate, endDate } = req.query;
-    console.log('Reports sales - range:', range, 'startDate:', startDate, 'endDate:', endDate);
     const orders = await getAllOrders();
     const filteredOrders = filterByDateRange(orders, range || 'all', startDate, endDate);
-    console.log('Total orders:', orders.length, 'Filtered orders:', filteredOrders.length);
-    
     // Filter for paid orders only
     const paidOrders = filteredOrders.filter(o => o.paymentStatus === 'paid');
-    console.log('Paid orders:', paidOrders.length);
-    
     const totalSales = paidOrders.reduce((sum, o) => sum + (o.total || 0), 0);
     const totalOrders = paidOrders.length;
     const totalTax = paidOrders.reduce((sum, o) => sum + (o.taxAmount || 0), 0);
@@ -685,26 +663,20 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await initDB();
-    console.log('Database initialized');
-    
     // Check if we need to seed demo data (only when MongoDB is available)
     const tables = await getAllTables();
     if (tables.length === 0 && mongoose.connection.readyState === 1) {
-      console.log('Database empty, running production data seeder...');
       try {
         const seedProduction = require('./seeders/demo');
         await seedProduction(true);
       } catch (seedError) {
-        console.log('Seeder skipped (MongoDB not available or error)');
       }
     } else if (tables.length === 0 && mongoose.connection.readyState !== 1) {
       // Seed demo data for in-memory storage
-      console.log('Seeding production data for in-memory storage...');
       await seedInMemoryDemoData();
     }
     
     server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
     }).on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
         console.error(`Port ${PORT} is already in use. Please close other applications or use a different port.`);
@@ -777,8 +749,6 @@ const seedInMemoryDemoData = async () => {
   await createTable({ tableNumber: 'T8', capacity: 4 });
   await createTable({ tableNumber: 'T9', capacity: 6 });
   await createTable({ tableNumber: 'T10', capacity: 8 });
-  
-  console.log('Demo data seeded successfully!');
 };
 
 startServer();

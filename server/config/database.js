@@ -48,18 +48,15 @@ const connectDB = async () => {
       connectTimeoutMS: 3000
     });
     isConnected = db.connections[0].readyState;
-    console.log(`MongoDB Connected: ${db.connection.host}`);
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
     // Fall back to in-memory if MongoDB is not available
-    console.log('Falling back to in-memory storage...');
     useInMemory = true;
   }
 };
 
 const initDB = async () => {
   await connectDB();
-  console.log(useInMemory ? 'Database initialized (in-memory)' : 'Database initialized with MongoDB');
 };
 
 // Helper to convert mongoose document to plain object with id
@@ -515,18 +512,15 @@ const deleteTable = async (id) => {
 
 // Orders
 const getAllOrders = async (params = {}) => {
-  console.log('getAllOrders called with params:', params);
+  
   if (useInMemory) {
     let orders = [...inMemoryStorage.orders];
-    console.log('In-memory - total orders:', orders.length);
-    console.log('Sample order paymentStatus:', orders[0]?.paymentStatus);
+
     if (params.status) {
       orders = orders.filter(o => o.status === params.status);
     }
     if (params.paymentStatus) {
-      console.log('Filtering by paymentStatus:', params.paymentStatus);
       orders = orders.filter(o => o.paymentStatus === params.paymentStatus);
-      console.log('After paymentStatus filter:', orders.length);
     }
     // Filter by date range
     if (params.startDate) {
@@ -747,7 +741,7 @@ const createOrder = async (data) => {
     } catch (err) {
       // Handle duplicate key error - retry with new order number
       if (err.code === 11000 && err.message.includes('orderNumber')) {
-        console.log('Duplicate orderNumber detected, generating new one...');
+        
         // Find the highest order number in MongoDB
         const maxOrder = await Order.findOne({
           orderNumber: { $regex: `^ORD-${dateStr}-` }
@@ -904,19 +898,14 @@ const deleteOrder = async (id) => {
   // Parse the ID to handle different formats
   const parsedId = isNaN(id) ? id : parseInt(id);
   const idStr = String(id);
-  
-  console.log('deleteOrder called with id:', id, 'parsedId:', parsedId, 'idStr:', idStr);
-  console.log('useInMemory:', useInMemory);
-  
+
   if (useInMemory) {
-    console.log('Available Order IDs:', inMemoryStorage.orders.map(o => ({ id: o.id, _id: o._id })));
     const index = inMemoryStorage.orders.findIndex(o => 
       o.id === parsedId || o.id === idStr || 
       o._id === parsedId || o._id === idStr ||
       String(o.id) === idStr || String(o._id) === idStr ||
       o.id === id || o._id === id
     );
-    console.log('Found index:', index);
     if (index === -1) return null;
     
     const order = inMemoryStorage.orders[index];
@@ -941,7 +930,6 @@ const deleteOrder = async (id) => {
   
   // MongoDB mode
   try {
-    console.log('Trying MongoDB delete with id:', id);
     // First get the order to check its status
     const order = await Order.findById(id);
     if (!order) return null;

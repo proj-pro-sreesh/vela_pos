@@ -33,8 +33,6 @@ const initializeSocket = (io) => {
   });
 
   io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.user.name} (${socket.user.role})`);
-
     // Join room based on role
     socket.join(`role:${socket.user.role}`);
 
@@ -50,7 +48,6 @@ const initializeSocket = (io) => {
 
     // Handle disconnect
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.user.name}`);
     });
   });
 

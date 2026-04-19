@@ -15,7 +15,6 @@ const seedProduction = async (reuseConnection = false) => {
     // Only connect if not reusing an existing connection
     if (!reuseConnection) {
       conn = await mongoose.connect(MONGODB_URI);
-      console.log('Connected to MongoDB for seeding...');
     }
 
     // Create demo users (using pre-hashed passwords for consistency)
@@ -23,16 +22,12 @@ const seedProduction = async (reuseConnection = false) => {
     // Only create if they don't exist to preserve user data
     const existingUsers = await User.countDocuments();
     if (existingUsers === 0) {
-      console.log('No existing users found, creating production users...');
-      
       await User.create([
         { username: 'admin', email: 'admin@velapos.com', password: '$2a$10$Jno92iCMcziATWO6BchIlekB/Pbcqw/o0nl0ohU3b.5EZAZ8ETTdS', name: 'Administrator', role: 'admin', isActive: true },
         { username: 'waiter', email: 'waiter@velapos.com', password: '$2a$10$7E1EUsP7forfOdc/moxEAeqFNNqw1NzKOkP.WXHpZT877XIzJ6Tm6', name: 'John Waiter', role: 'waiter', isActive: true },
         { username: 'biller', email: 'biller@velapos.com', password: '$2a$10$R1a4hGvSfQvGTsI8gtUOy.cE9B1o8sPcbicdFwiegrS.neHrxmmD.', name: 'Jane Biller', role: 'biller', isActive: true }
       ]);
-      console.log('Created users: { admin: "admin", waiter: "waiter", biller: "biller" }');
     } else {
-      console.log('Users already exist, skipping user creation');
     }
 
     // Create categories only if none exist
@@ -44,9 +39,7 @@ const seedProduction = async (reuseConnection = false) => {
         { name: 'Beverages', displayOrder: 3, isActive: true },
         { name: 'Desserts', displayOrder: 4, isActive: true }
       ]);
-      console.log('Created categories: [ "Vegetarian", "Non-Vegetarian", "Beverages", "Desserts" ]');
     } else {
-      console.log('Categories already exist, skipping category creation');
     }
 
     // Create menu items only if none exist
@@ -72,9 +65,7 @@ const seedProduction = async (reuseConnection = false) => {
       ];
 
       await MenuItem.insertMany(menuItems);
-      console.log('Created 11 menu items');
     } else {
-      console.log('Menu items already exist, skipping menu item creation');
     }
 
     // Create tables only if none exist
@@ -92,17 +83,11 @@ const seedProduction = async (reuseConnection = false) => {
         { tableNumber: 'T9', capacity: 6, status: 'available' },
         { tableNumber: 'T10', capacity: 8, status: 'available' }
       ]);
-      console.log('Created 10 tables');
     } else {
-      console.log('Tables already exist, skipping table creation');
     }
-
-    console.log('\nProduction data initialization complete (existing data preserved)!');
-
     // Only disconnect if we created our own connection
     if (!reuseConnection && conn) {
       await mongoose.disconnect();
-      console.log('Disconnected from MongoDB');
     }
 
     return true;
