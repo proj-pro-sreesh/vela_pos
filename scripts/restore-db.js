@@ -1,15 +1,67 @@
 const path = require('path');
-const mongoose = require(path.join(__dirname, '..', 'server', 'node_modules', 'mongoose'));
 const fs = require('fs');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const net = require('net');
+
+// Get the base directory (project root)
+const SCRIPT_DIR = __dirname;
+const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..');
+const SERVER_DIR = path.join(PROJECT_ROOT, 'server');
+const NODE_MODULES_DIR = path.join(SERVER_DIR, 'node_modules');
+
+// Install server dependencies if needed
+function installServerDeps() {
+  return new Promise((resolve) => {
+    if (fs.existsSync(NODE_MODULES_DIR) && fs.existsSync(path.join(NODE_MODULES_DIR, 'mongoose'))) {
+      console.log('Server dependencies already installed.');
+      resolve();
+      return;
+    }
+
+    console.log('Installing server dependencies...');
+    const npmProcess = spawn('npm', ['install'], {
+      cwd: SERVER_DIR,
+      shell: true,
+      stdio: 'inherit'
+    });
+
+    npmProcess.on('close', (code) => {
+      if (code === 0) {
+        console.log('Server dependencies installed.');
+        resolve();
+      } else {
+        console.error('Failed to install server dependencies');
+        process.exit(1);
+      }
+    });
+  });
+}
+
+// Dynamically load mongoose after deps are installed
+let mongoose;
+async function loadMongoose() {
+  await installServerDeps();
+  
+  try {
+    mongoose = require(path.join(NODE_MODULES_DIR, 'mongoose'));
+  } catch (e) {
+    // Fall back to system mongoose
+    try {
+      mongoose = require('mongoose');
+    } catch (e2) {
+      console.error('Cannot find mongoose. Please run: cd server && npm install');
+      process.exit(1);
+    }
+  }
+  return mongoose;
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/vela-pos';
 
-// MongoDB configuration - matching start-server.bat
-const MONGODB_PATH = 'C:\\Users\\user\\Documents\\Vela\\mongodb-win32-x86_64-windows-6.0.14\\bin\\mongod.exe';
-const MONGODB_DATA_PATH = 'C:\\Users\\user\\Documents\\Vela\\data\\db';
-const MONGODB_LOG_PATH = 'C:\\Users\\user\\Documents\\Vela\\data\\log\\mongod.log';
+// MongoDB configuration - find bundled MongoDB
+const BUNDLED_MONGO_PATH = path.join(PROJECT_ROOT, 'mongodb-win32-x86_64-windows-6.0.14', 'bin', 'mongod.exe');
+const MONGODB_DATA_PATH = path.join(PROJECT_ROOT, 'data', 'db');
+const MONGODB_LOG_PATH = path.join(PROJECT_ROOT, 'data', 'log', 'mongod.log');
 
 // Check if MongoDB is running
 function checkMongoDBRunning() {
@@ -42,8 +94,8 @@ async function startMongoDB() {
   console.log('MongoDB is not running. Starting MongoDB...');
 
   // Create data directories if they don't exist
-  const dataDir = path.join(__dirname, '..', 'data', 'db');
-  const logDir = path.join(__dirname, '..', 'data', 'log');
+  const dataDir = MONGODB_DATA_PATH;
+  const logDir = path.dirname(MONGODB_LOG_PATH);
   
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
@@ -52,12 +104,12 @@ async function startMongoDB() {
     fs.mkdirSync(logDir, { recursive: true });
   }
 
-  // Resolve absolute paths
-  const absDataPath = path.resolve(__dirname, '..', 'data', 'db');
-  const absLogPath = path.resolve(__dirname, '..', 'data', 'log', 'mongod.log');
+  // Use absolute paths
+  const absDataPath = path.resolve(PROJECT_ROOT, 'data', 'db');
+  const absLogPath = path.resolve(PROJECT_ROOT, 'data', 'log', 'mongod.log');
 
   // Try bundled MongoDB first, then system MongoDB
-  let mongoPath = MONGODB_PATH;
+  let mongoPath = BUNDLED_MONGO_PATH;
   if (!fs.existsSync(mongoPath)) {
     // Try system MongoDB
     mongoPath = 'mongod';
@@ -65,7 +117,7 @@ async function startMongoDB() {
 
   return new Promise((resolve) => {
     const mongoProcess = exec(`"${mongoPath}" --dbpath "${absDataPath}" --logpath "${absLogPath}" --bind_ip 127.0.0.1 --port 27017`, {
-      cwd: path.join(__dirname, '..')
+      cwd: PROJECT_ROOT
     });
 
     mongoProcess.stdout.on('data', (data) => {
@@ -136,7 +188,12 @@ function convertIds(data, collectionName) {
 }
 
 async function restoreDatabase() {
-  const backupDir = path.join(__dirname, '..', 'backups');
+  // Load mongoose first (this also installs server deps)
+  console.log('Loading mongoose and checking dependencies...');
+  await loadMongoose();
+  console.log();
+
+  const backupDir = path.join(PROJECT_ROOT, 'backups');
 
   // Start MongoDB first
   console.log('Checking MongoDB status...');
@@ -186,7 +243,7 @@ async function restoreDatabase() {
       process.exit(1);
     }
 
-    const selectedBackup = path.join(backupDir, backups[index]);
+    const selectedBackup = path.join(PROJECT_ROOT, 'backups', backups[index]);
 
     console.log();
     console.log('========================================');
