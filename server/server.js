@@ -663,20 +663,30 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await initDB();
+    console.log('🗄️  Database initialized');
     // Check if we need to seed demo data (only when MongoDB is available)
     const tables = await getAllTables();
     if (tables.length === 0 && mongoose.connection.readyState === 1) {
+      console.log('🌱 Seeding production data...');
       try {
         const seedProduction = require('./seeders/demo');
         await seedProduction(true);
       } catch (seedError) {
+        console.log('Seeder skipped (error: ' + seedError.message + ')');
       }
     } else if (tables.length === 0 && mongoose.connection.readyState !== 1) {
       // Seed demo data for in-memory storage
+      console.log('🌱 Seeding demo data for in-memory storage...');
       await seedInMemoryDemoData();
+    } else {
+      console.log('✅ Database already populated - skipping seeding');
     }
     
-    server.listen(PORT, () => {
+     server.listen(PORT, () => {
+       console.log(`✅ Server running on port ${PORT}`);
+       console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+       console.log(`🔗 Client URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
+       console.log(`🗄️  Database: ${process.env.MONGODB_URI ? 'MongoDB' : 'In-Memory'}`);
     }).on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
         console.error(`Port ${PORT} is already in use. Please close other applications or use a different port.`);

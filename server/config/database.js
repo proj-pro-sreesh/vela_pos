@@ -48,10 +48,12 @@ const connectDB = async () => {
       connectTimeoutMS: 3000
     });
     isConnected = db.connections[0].readyState;
+    console.log('✅ MongoDB connected successfully');
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
     // Fall back to in-memory if MongoDB is not available
     useInMemory = true;
+    console.warn('⚠️  MongoDB unavailable - using in-memory storage (data will be lost on restart)');
   }
 };
 
