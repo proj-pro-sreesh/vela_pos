@@ -617,15 +617,25 @@ const createOrder = async (data) => {
       const orderDate = new Date(o.createdAt);
       return orderDate.toDateString() === now.toDateString();
     });
-    const count = todayOrders.length + 1;
+    // Find highest sequence from today's orders
+    let maxSeq = 0;
+    todayOrders.forEach(o => {
+      if (o.orderNumber && o.orderNumber.startsWith(`ORD-${dateStr}-`)) {
+        const seq = parseInt(o.orderNumber.split('-').pop(), 10);
+        if (seq > maxSeq) maxSeq = seq;
+      }
+    });
+    const count = maxSeq + 1;
     orderNumber = `ORD-${dateStr}-${String(count).padStart(4, '0')}`;
   } else {
     // Find the highest order number for today in MongoDB
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     
+    // Find active orders (not cancelled/deleted) from today
     const lastOrderToday = await Order.findOne({
-      createdAt: { $gte: todayStart, $lt: todayEnd }
+      createdAt: { $gte: todayStart, $lt: todayEnd },
+      status: { $ne: 'cancelled' }
     }).sort({ orderNumber: -1 });
     
     if (lastOrderToday && lastOrderToday.orderNumber) {
@@ -732,8 +742,28 @@ const createOrder = async (data) => {
       }
     }
   } else {
-    order = await Order.create(orderData);
-    
+    try {
+      order = await Order.create(orderData);
+    } catch (err) {
+      // Handle duplicate key error - retry with new order number
+      if (err.code === 11000 && err.message.includes('orderNumber')) {
+        console.log('Duplicate orderNumber detected, generating new one...');
+        // Find the highest order number in MongoDB
+        const maxOrder = await Order.findOne({
+          orderNumber: { $regex: `^ORD-${dateStr}-` }
+        }).sort({ orderNumber: -1 });
+        let nextSeq = 1;
+        if (maxOrder && maxOrder.orderNumber) {
+          const parts = maxOrder.orderNumber.split('-');
+          nextSeq = parseInt(parts[parts.length - 1], 10) + 1;
+        }
+        orderData.orderNumber = `ORD-${dateStr}-${String(nextSeq).padStart(4, '0')}`;
+        order = await Order.create(orderData);
+      } else {
+        throw err;
+      }
+    }
+
     // Update table with current order reference
     if (!isTakeaway && data.tableId) {
       // Try to convert tableId to ObjectId for MongoDB
