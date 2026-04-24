@@ -21,7 +21,8 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Chip
+  Chip,
+  TextField
 } from '@mui/material';
 import { 
   Add, 
@@ -97,6 +98,17 @@ const POS = () => {
       }
       return c;
     }).filter(c => c.quantity > 0));
+  };
+
+  const setQuantity = (itemId, newQuantity) => {
+    const qty = parseInt(newQuantity, 10);
+    if (isNaN(qty) || qty < 1) {
+      setCart(cart.filter(c => c._id !== itemId));
+    } else {
+      setCart(cart.map(c => 
+        c._id === itemId ? { ...c, quantity: qty } : c
+      ));
+    }
   };
 
   const removeFromCart = (itemId) => {
@@ -223,11 +235,11 @@ const POS = () => {
               />
             </Box>
             
-            {!searchQuery && favoriteItems.length > 0 && (
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {favoriteItems.slice(0, 10).map((item, index) => (
+             {!searchQuery && favoriteItems.length > 0 && (
+               <Box sx={{ mb: 2 }}>
+                 <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
+                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                   {[...favoriteItems].sort((a, b) => a.name.localeCompare(b.name)).slice(0, 10).map((item, index) => (
                     <Chip 
                       key={index} 
                       label={item.name} 
@@ -323,17 +335,38 @@ const POS = () => {
                   </ListItem>
                 ) : (
                   cart.map(item => (
-                    <ListItem key={item._id} sx={{ px: 0 }}>
-                      <ListItemText primary={item.name} secondary={"Rs. " + item.price + " each"} />
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <IconButton size="small" onClick={() => updateQuantity(item._id, -1)}>
-                          <Remove fontSize="small" />
-                        </IconButton>
-                        <Typography variant="body2" sx={{ minWidth: 20, textAlign: 'center' }}>{item.quantity}</Typography>
-                        <IconButton size="small" onClick={() => updateQuantity(item._id, 1)}>
-                          <Add fontSize="small" />
-                        </IconButton>
-                      </Box>
+                     <ListItem key={item._id} sx={{ px: 0 }}>
+                       <ListItemText primary={item.name} secondary={"Rs. " + item.price + " each"} />
+                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                         <IconButton size="small" onClick={() => updateQuantity(item._id, -1)}>
+                           <Remove fontSize="small" />
+                         </IconButton>
+                         <TextField
+                           size="small"
+                           value={item.quantity}
+                           onChange={(e) => setQuantity(item._id, e.target.value)}
+                           onBlur={(e) => {
+                             const qty = parseInt(e.target.value, 10);
+                             if (isNaN(qty) || qty < 1) {
+                               setQuantity(item._id, 1);
+                             }
+                           }}
+                           inputProps={{ 
+                             style: { textAlign: 'center', padding: '4px 2px' },
+                             min: 1,
+                             type: 'number'
+                           }}
+                           sx={{ 
+                             width: 50,
+                             '& .MuiInputBase-root': {
+                               fontSize: '0.875rem',
+                             }
+                           }}
+                         />
+                          <IconButton size="small" onClick={() => updateQuantity(item._id, 1)}>
+                            <Add fontSize="small" />
+                          </IconButton>
+                         </Box>
                       <ListItemSecondaryAction>
                         <Typography variant="body2" fontWeight="bold" sx={{ ml: 1 }}>Rs. {(item.price * item.quantity).toFixed(2)}</Typography>
                         <IconButton edge="end" size="small" onClick={() => removeFromCart(item._id)}>

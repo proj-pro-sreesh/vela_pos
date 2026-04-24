@@ -686,7 +686,7 @@ export default function Tables() {
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {favoriteItems.slice(0, 10).map((item, index) => (
+                    {[...favoriteItems].sort((a, b) => a.name.localeCompare(b.name)).slice(0, 10).map((item, index) => (
                       <Chip 
                         key={index} 
                         label={item.name} 
@@ -784,12 +784,33 @@ export default function Tables() {
                         <Typography variant="body2">{item.name}</Typography>
                         <Typography variant="caption" color="text.secondary">₹{item.price} each</Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton size="small" onClick={() => handleRemoveItem(item.id)}>-</IconButton>
-                        <Typography>{item.quantity}</Typography>
-                        <IconButton size="small" onClick={() => handleAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
-                        <Typography>₹{item.price * item.quantity}</Typography>
-                      </Box>
+                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                         <IconButton size="small" onClick={() => handleRemoveItem(item.id)}>-</IconButton>
+                         <TextField
+                           size="small"
+                           value={item.quantity}
+                           onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value, 10) || 1)}
+                           onBlur={(e) => {
+                             const qty = parseInt(e.target.value, 10);
+                             if (isNaN(qty) || qty < 1) {
+                               handleQuantityChange(item.id, 1);
+                             }
+                           }}
+                           inputProps={{ 
+                             style: { textAlign: 'center', padding: '4px 2px' },
+                             min: 1,
+                             type: 'number'
+                           }}
+                           sx={{ 
+                             width: 50,
+                             '& .MuiInputBase-root': {
+                               fontSize: '0.875rem',
+                             }
+                           }}
+                         />
+                         <IconButton size="small" onClick={() => handleAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
+                         <Typography>₹{item.price * item.quantity}</Typography>
+                       </Box>
                     </Box>
                   ))}
                   <Divider sx={{ my: 2 }} />
@@ -820,11 +841,11 @@ export default function Tables() {
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
                 <input type="text" placeholder="Search or add favorites..." value={editMenuSearchQuery} onChange={(e) => setEditMenuSearchQuery(e.target.value)} style={{ border: 'none', outline: 'none', flex: 1, padding: '8px 0', fontSize: 14 }} />
               </Box>
-              {!editMenuSearchQuery && favoriteItems.length > 0 && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {favoriteItems.slice(0, 10).map((item, index) => (
+               {!editMenuSearchQuery && favoriteItems.length > 0 && (
+                 <Box sx={{ mb: 2 }}>
+                   <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>⭐ Favorites:</Typography>
+                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                     {[...favoriteItems].sort((a, b) => a.name.localeCompare(b.name)).slice(0, 10).map((item, index) => (
                       <Chip 
                         key={index} 
                         label={item.name} 
@@ -919,12 +940,33 @@ export default function Tables() {
                         <Typography variant="body2">{item.name}</Typography>
                         <Typography variant="caption" color="text.secondary">₹{item.price} each</Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton size="small" onClick={() => handleEditRemoveItem(item.id)}>-</IconButton>
-                        <Typography>{item.quantity}</Typography>
-                        <IconButton size="small" onClick={() => handleEditAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
-                        <Typography>₹{item.price * item.quantity}</Typography>
-                      </Box>
+                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                         <IconButton size="small" onClick={() => handleEditRemoveItem(item.id)}>-</IconButton>
+                         <TextField
+                           size="small"
+                           value={item.quantity}
+                           onChange={(e) => handleEditQuantityChange(item.id, parseInt(e.target.value, 10) || 1)}
+                           onBlur={(e) => {
+                             const qty = parseInt(e.target.value, 10);
+                             if (isNaN(qty) || qty < 1) {
+                               handleEditQuantityChange(item.id, 1);
+                             }
+                           }}
+                           inputProps={{ 
+                             style: { textAlign: 'center', padding: '4px 2px' },
+                             min: 1,
+                             type: 'number'
+                           }}
+                           sx={{ 
+                             width: 50,
+                             '& .MuiInputBase-root': {
+                               fontSize: '0.875rem',
+                             }
+                           }}
+                         />
+                         <IconButton size="small" onClick={() => handleEditAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
+                         <Typography>₹{item.price * item.quantity}</Typography>
+                       </Box>
                     </Box>
                   ))}
                   <Divider sx={{ my: 2 }} />
