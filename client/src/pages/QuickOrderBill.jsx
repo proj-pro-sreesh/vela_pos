@@ -416,13 +416,13 @@ const QuickOrderBill = () => {
             </Box>
 
              {searchQuery ? (
-               <Box sx={{ mb: 3 }}>
-                 <Typography variant="h6" sx={{ mb: 1, bgcolor: 'primary.main', color: 'white', p: 1, borderRadius: 1 }}>
-                   Search Results ({allSearchResults.length})
-                 </Typography>
-                 {allSearchResults.length > 0 ? (
-                   <Grid container spacing={1}>
-                     {allSearchResults.map(item => (
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 1, bgcolor: 'primary.main', color: 'white', p: 1, borderRadius: 1 }}>
+                    Search Results ({allSearchResults.length})
+                  </Typography>
+                  {allSearchResults.length > 0 ? (
+                    <Grid container spacing={1}>
+                      {allSearchResults.sort((a, b) => a.name.localeCompare(b.name)).map(item => (
                        <Grid item xs={6} sm={4} md={3} key={item._id}>
                          <Card 
                            sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, opacity: item.isAvailable ? 1 : 0.5 }}
@@ -452,7 +452,9 @@ const QuickOrderBill = () => {
                   </Typography>
                   <Box sx={{ height: '400px', overflowY: 'auto', border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
                     <Grid container spacing={1}>
-                      {menuData.flatMap(category => category.items).map(item => (
+                      {menuData.flatMap(category => category.items)
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map(item => (
                         <Grid item xs={6} sm={4} md={3} key={item._id}>
                           <Card 
                             sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, opacity: item.isAvailable ? 1 : 0.5 }}
