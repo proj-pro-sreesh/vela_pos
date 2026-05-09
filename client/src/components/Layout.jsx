@@ -27,7 +27,8 @@ import {
   PointOfSale,
   Logout,
   AdminPanelSettings,
-  Store
+  Store,
+  ReceiptLong
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -36,6 +37,7 @@ const drawerWidth = 240;
 const menuItems = [
   { text: 'Tables', icon: <TableBar />, path: '/tables', roles: ['admin', 'waiter', 'biller'] },
   { text: 'Biller', icon: <Restaurant />, path: '/biller', roles: ['admin', 'biller'] },
+  { text: 'Quick Order', icon: <ReceiptLong />, path: '/quick-order', roles: ['admin', 'biller'] },
   { text: 'Vendors', icon: <Store />, path: '/vendors', roles: ['admin', 'biller'] },
   { text: 'Reports', icon: <Dashboard />, path: '/admin/reports', roles: ['admin'] },
   { text: 'Admin', icon: <AdminPanelSettings />, path: '/admin', roles: ['admin'] },

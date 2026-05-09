@@ -13,6 +13,7 @@ import POS from './pages/POS';
 import Tables from './pages/Tables';
 import Biller from './pages/Biller';
 import Admin from './pages/Admin';
+import QuickOrderBill from './pages/QuickOrderBill';
 import MenuManagement from './pages/admin/MenuManagement';
 import UserManagement from './pages/admin/UserManagement';
 import TableManagement from './pages/admin/TableManagement';
@@ -94,6 +95,16 @@ function App() {
           element={
             <ProtectedRoute roles={['admin', 'biller']}>
               <Biller />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Quick Order & Bill Dashboard */}
+        <Route 
+          path="quick-order" 
+          element={
+            <ProtectedRoute roles={['admin', 'biller']}>
+              <QuickOrderBill />
             </ProtectedRoute>
           } 
         />
