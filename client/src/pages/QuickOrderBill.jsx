@@ -238,9 +238,9 @@ const QuickOrderBill = () => {
       const sn = String(idx + 1).padEnd(2);
       const name = (item.name + '       ').substring(0, 15).padEnd(15);
       const qty = String('' + item.quantity).padEnd(4);
-      const price = ('   ' + item.price.toFixed(2)).slice(-7).padEnd(7);
-      const amt = ('      ' + (item.price * item.quantity).toFixed(2)).slice(-8);
-      return sn + name + '    ' + qty + ' ' + price + ' ' + amt;
+      const price = (' ' + item.price.toFixed(2)).slice(-7).padEnd(7);
+      const amt = ('  ' + (item.price * item.quantity).toFixed(2)).slice(-8);
+      return sn + name + '    ' + qty + '' + price + '' + amt;
     }).join('\n');
     
     const restaurantName = settings.restaurantName || 'VELA RESTAURANT';
