@@ -4,7 +4,7 @@ import {
   Box, Grid, Card, CardContent, Typography, Button, Dialog, DialogTitle, 
   DialogContent, DialogActions, TextField, MenuItem, Tab, Tabs, Chip, IconButton,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Divider,
-  FormControl, InputLabel, Select, Alert
+  FormControl, InputLabel, Select, Alert, List, ListItem, ListItemText
 } from '@mui/material';
 import { 
   Delete, Print, Person, LocalShipping, ShoppingCart, Edit, Search, Receipt, Star, FavoriteBorder, Favorite 
@@ -43,14 +43,28 @@ export default function Tables() {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [billLoading, setBillLoading] = useState(false);
   const [showBillPrinted, setShowBillPrinted] = useState(false);
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem('restaurantSettings');
-    return saved ? JSON.parse(saved) : {};
-  });
-  const [favoriteItems, setFavoriteItems] = useState(() => {
-    const saved = localStorage.getItem('favoriteMenuItems');
-    return saved ? JSON.parse(saved) : [];
-  });
+   const [settings, setSettings] = useState(() => {
+     const saved = localStorage.getItem('restaurantSettings');
+     if (!saved) return {};
+     try {
+       const parsed = JSON.parse(saved);
+       return typeof parsed === 'object' && parsed !== null ? parsed : {};
+     } catch (e) {
+       console.error('Failed to parse restaurant settings', e);
+       return {};
+     }
+   });
+   const [favoriteItems, setFavoriteItems] = useState(() => {
+     const saved = localStorage.getItem('favoriteMenuItems');
+     if (!saved) return [];
+     try {
+       const parsed = JSON.parse(saved);
+       return Array.isArray(parsed) ? parsed : [];
+     } catch (e) {
+       console.error('Failed to parse favorite items', e);
+       return [];
+     }
+   });
 
   useEffect(() => {
     fetchTables();
@@ -58,31 +72,31 @@ export default function Tables() {
     fetchPopularItems();
   }, []);
 
-  const fetchTables = async () => {
-    try {
-      const response = await tableAPI.getWithOrders();
-      setTables(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching tables:', error);
-      setLoading(false);
-    }
-  };
+   const fetchTables = async () => {
+     try {
+       const response = await tableAPI.getWithOrders();
+       setTables(Array.isArray(response.data) ? response.data : []);
+       setLoading(false);
+     } catch (error) {
+       console.error('Error fetching tables:', error);
+       setLoading(false);
+     }
+   };
 
-  const fetchPopularItems = async () => {
-    try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 5);
-      const response = await reportAPI.getPopularItems({
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0]
-      });
-      setPopularItems(response.data || []);
-    } catch (error) {
-      console.error('Error fetching popular items:', error);
-    }
-  };
+   const fetchPopularItems = async () => {
+     try {
+       const endDate = new Date();
+       const startDate = new Date();
+       startDate.setDate(startDate.getDate() - 5);
+       const response = await reportAPI.getPopularItems({
+         startDate: startDate.toISOString().split('T')[0],
+         endDate: endDate.toISOString().split('T')[0]
+       });
+       setPopularItems(Array.isArray(response.data) ? response.data : []);
+     } catch (error) {
+       console.error('Error fetching popular items:', error);
+     }
+   };
 
   const toggleFavorite = (menuItem) => {
     setFavoriteItems(prev => {
@@ -106,13 +120,13 @@ export default function Tables() {
     return favoriteItems.some(item => item._id === itemId);
   };
 
-  const fetchActiveOrders = async () => {
-    try {
-      const response = await orderAPI.getActive();
-      const ordersData = response.data;
-      const ordersByTable = {};
-      const takeawayArray = [];
-      ordersData.forEach(order => {
+   const fetchActiveOrders = async () => {
+     try {
+       const response = await orderAPI.getActive();
+       const ordersData = Array.isArray(response.data) ? response.data : [];
+       const ordersByTable = {};
+       const takeawayArray = [];
+       ordersData.forEach(order => {
         const tableRef = order.table;
         const tableId = tableRef?._id ? String(tableRef._id) : (order.tableId ? String(order.tableId) : null);
         const isTakeaway = order.isTakeaway || order.customerName === 'Takeaway' || order.customerName === 'takeaway';
@@ -129,11 +143,11 @@ export default function Tables() {
     }
   };
 
-  const fetchMenuItems = async () => {
-    try {
-      const response = await menuAPI.getAll();
-      setMenuItems(response.data);
-      // Extract categories from menu items
+   const fetchMenuItems = async () => {
+     try {
+       const response = await menuAPI.getAll();
+       setMenuItems(Array.isArray(response.data) ? response.data : []);
+       // Extract categories from menu items
       const itemCategories = [...new Set(response.data.map(item => {
         if (typeof item.category === 'string') return item.category;
         if (item.category && typeof item.category === 'object') return item.category.name;

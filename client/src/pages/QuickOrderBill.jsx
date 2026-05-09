@@ -57,14 +57,28 @@ const QuickOrderBill = () => {
   const [selectedTable, setSelectedTable] = useState('');
   const [orderType, setOrderType] = useState('dine-in'); // 'dine-in' or 'takeaway'
   const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem('restaurantSettings');
-    return saved ? JSON.parse(saved) : {};
-  });
-  const [favoriteItems, setFavoriteItems] = useState(() => {
-    const saved = localStorage.getItem('favoriteMenuItems');
-    return saved ? JSON.parse(saved) : [];
-  });
+   const [settings, setSettings] = useState(() => {
+     const saved = localStorage.getItem('restaurantSettings');
+     if (!saved) return {};
+     try {
+       const parsed = JSON.parse(saved);
+       return typeof parsed === 'object' && parsed !== null ? parsed : {};
+     } catch (e) {
+       console.error('Failed to parse restaurant settings', e);
+       return {};
+     }
+   });
+   const [favoriteItems, setFavoriteItems] = useState(() => {
+     const saved = localStorage.getItem('favoriteMenuItems');
+     if (!saved) return [];
+     try {
+       const parsed = JSON.parse(saved);
+       return Array.isArray(parsed) ? parsed : [];
+     } catch (e) {
+       console.error('Failed to parse favorite items', e);
+       return [];
+     }
+   });
   
   // Bill state
   const [completedOrder, setCompletedOrder] = useState(null);
@@ -95,8 +109,8 @@ const QuickOrderBill = () => {
         menuAPI.getGrouped(),
         tableAPI.getAll()
       ]);
-      setMenuData(menuRes.data);
-      setTables(tablesRes.data);
+      setMenuData(Array.isArray(menuRes.data) ? menuRes.data : []);
+      setTables(Array.isArray(tablesRes.data) ? tablesRes.data : []);
     } catch (err) {
       console.error('Error fetching data:', err);
     } finally {
