@@ -771,52 +771,52 @@ export default function Tables() {
               )}
               </Box>
             </Grid>
-            <Grid item xs={12} md={5} sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
-              <Box>
+            <Grid item xs={12} md={5}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', maxHeight: '60vh' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
                 {orderItems.length === 0 ? (
                   <Typography color="text.secondary">No items added</Typography>
                 ) : (
-                  <Box>
-                  {orderItems.map(item => (
-                    <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Box>
-                        <Typography variant="body2">{item.name}</Typography>
-                        <Typography variant="caption" color="text.secondary">₹{item.price} each</Typography>
-                      </Box>
-                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                         <IconButton size="small" onClick={() => handleRemoveItem(item.id)}>-</IconButton>
-                         <TextField
-                           size="small"
-                           value={item.quantity}
-                           onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value, 10) || 1)}
-                           onBlur={(e) => {
-                             const qty = parseInt(e.target.value, 10);
-                             if (isNaN(qty) || qty < 1) {
-                               handleQuantityChange(item.id, 1);
-                             }
-                           }}
-                           inputProps={{ 
-                             style: { textAlign: 'center', padding: '4px 2px' },
-                             min: 1,
-                             type: 'number'
-                           }}
-                           sx={{ 
-                             width: 50,
-                             '& .MuiInputBase-root': {
-                               fontSize: '0.875rem',
-                             }
-                           }}
-                         />
-                         <IconButton size="small" onClick={() => handleAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
-                         <Typography>₹{item.price * item.quantity}</Typography>
-                       </Box>
-                    </Box>
-                  ))}
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6">Total: ₹{calculateTotal()}</Typography>
-                </Box>
-              )}
+                  <List sx={{ flex: 1, overflow: 'auto', maxHeight: 300 }}>
+                    {orderItems.map(item => (
+                      <ListItem key={item.id} sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <ListItemText 
+                          primary={item.name} 
+                          secondary={`₹${item.price} each`} 
+                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <IconButton size="small" onClick={() => handleRemoveItem(item.id)}>-</IconButton>
+                          <TextField
+                            size="small"
+                            value={item.quantity}
+                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value, 10) || 1)}
+                            onBlur={(e) => {
+                              const qty = parseInt(e.target.value, 10);
+                              if (isNaN(qty) || qty < 1) {
+                                handleQuantityChange(item.id, 1);
+                              }
+                            }}
+                            inputProps={{ 
+                              style: { textAlign: 'center', padding: '4px 2px' },
+                              min: 1,
+                              type: 'number'
+                            }}
+                            sx={{ 
+                              width: 50,
+                              '& .MuiInputBase-root': {
+                                fontSize: '0.875rem',
+                              }
+                            }}
+                          />
+                          <IconButton size="small" onClick={() => handleAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
+                          <Typography>₹{item.price * item.quantity}</Typography>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="h6">Total: ₹{calculateTotal()}</Typography>
               </Box>
             </Grid>
           </Grid>
@@ -927,52 +927,52 @@ export default function Tables() {
                 ))
               )}
             </Grid>
-            <Grid item xs={12} md={5} sx={{ maxHeight: '60vh', overflowY: 'auto', pr: 1 }}>
-              <Box>
+            <Grid item xs={12} md={5}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', maxHeight: '60vh' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>Order Items</Typography>
                 {editingOrderItems.length === 0 ? (
                   <Typography color="text.secondary">No items added</Typography>
                 ) : (
-                  <Box>
-                  {editingOrderItems.map(item => (
-                    <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Box>
-                        <Typography variant="body2">{item.name}</Typography>
-                        <Typography variant="caption" color="text.secondary">₹{item.price} each</Typography>
-                      </Box>
-                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                         <IconButton size="small" onClick={() => handleEditRemoveItem(item.id)}>-</IconButton>
-                         <TextField
-                           size="small"
-                           value={item.quantity}
-                           onChange={(e) => handleEditQuantityChange(item.id, parseInt(e.target.value, 10) || 1)}
-                           onBlur={(e) => {
-                             const qty = parseInt(e.target.value, 10);
-                             if (isNaN(qty) || qty < 1) {
-                               handleEditQuantityChange(item.id, 1);
-                             }
-                           }}
-                           inputProps={{ 
-                             style: { textAlign: 'center', padding: '4px 2px' },
-                             min: 1,
-                             type: 'number'
-                           }}
-                           sx={{ 
-                             width: 50,
-                             '& .MuiInputBase-root': {
-                               fontSize: '0.875rem',
-                             }
-                           }}
-                         />
-                         <IconButton size="small" onClick={() => handleEditAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
-                         <Typography>₹{item.price * item.quantity}</Typography>
-                       </Box>
-                    </Box>
-                  ))}
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6">Total: ₹{calculateEditTotal()}</Typography>
-                </Box>
-              )}
+                  <List sx={{ flex: 1, overflow: 'auto', maxHeight: 300 }}>
+                    {editingOrderItems.map(item => (
+                      <ListItem key={item.id} sx={{ px: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <ListItemText 
+                          primary={item.name} 
+                          secondary={`₹${item.price} each`} 
+                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <IconButton size="small" onClick={() => handleEditRemoveItem(item.id)}>-</IconButton>
+                          <TextField
+                            size="small"
+                            value={item.quantity}
+                            onChange={(e) => handleEditQuantityChange(item.id, parseInt(e.target.value, 10) || 1)}
+                            onBlur={(e) => {
+                              const qty = parseInt(e.target.value, 10);
+                              if (isNaN(qty) || qty < 1) {
+                                handleEditQuantityChange(item.id, 1);
+                              }
+                            }}
+                            inputProps={{ 
+                              style: { textAlign: 'center', padding: '4px 2px' },
+                              min: 1,
+                              type: 'number'
+                            }}
+                            sx={{ 
+                              width: 50,
+                              '& .MuiInputBase-root': {
+                                fontSize: '0.875rem',
+                              }
+                            }}
+                          />
+                          <IconButton size="small" onClick={() => handleEditAddItem({ _id: item.id, name: item.name, price: item.price })}>+</IconButton>
+                          <Typography>₹{item.price * item.quantity}</Typography>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="h6">Total: ₹{calculateEditTotal()}</Typography>
               </Box>
             </Grid>
           </Grid>

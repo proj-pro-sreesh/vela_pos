@@ -343,7 +343,7 @@ const QuickOrderBill = () => {
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <Grid container spacing={2} sx={{ flex: 1, overflow: 'hidden' }}>
+      <Grid container spacing={2} sx={{ flex: 1 }}>
           <Grid item xs={12} md={8} sx={{ overflow: 'auto', pr: 1 }}>
             <Box sx={{ mb: 2 }}>
               {/* Order Type Selection */}
@@ -384,19 +384,6 @@ const QuickOrderBill = () => {
                 </FormControl>
               )}
 
-              {/* Payment Method Selection */}
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                <InputLabel>Payment Method</InputLabel>
-                <Select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  label="Payment Method"
-                >
-                  <MuiMenuItem value="cash">Cash</MuiMenuItem>
-                  <MuiMenuItem value="card">Card</MuiMenuItem>
-                  <MuiMenuItem value="upi">UPI</MuiMenuItem>
-                </Select>
-              </FormControl>
 
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, border: 1, borderColor: 'divider', borderRadius: 1, px: 1, bgcolor: 'background.paper' }}>
                 <Search sx={{ color: 'text.secondary', mr: 1 }} />
@@ -500,57 +487,77 @@ const QuickOrderBill = () => {
 
                 <Divider sx={{ my: 1 }} />
 
-                <List sx={{ flex: 1, overflow: 'auto', maxHeight: 300 }}>
-                  {cart.length === 0 ? (
-                    <ListItem>
-                      <ListItemText primary="Cart is empty" secondary="Add items from the menu" />
-                    </ListItem>
-                  ) : (
-                    cart.map(item => (
-                      <ListItem key={item._id} sx={{ px: 0 }}>
-                        <ListItemText primary={item.name} secondary={"Rs. " + item.price + " each"} />
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <IconButton size="small" onClick={() => updateQuantity(item._id, -1)}>
-                            <Remove fontSize="small" />
-                          </IconButton>
-                          <TextField
-                            size="small"
-                            value={item.quantity}
-                            onChange={(e) => setQuantity(item._id, e.target.value)}
-                            onBlur={(e) => {
-                              const qty = parseInt(e.target.value, 10);
-                              if (isNaN(qty) || qty < 1) {
-                                setQuantity(item._id, 1);
-                              }
-                            }}
-                            inputProps={{ 
-                              style: { textAlign: 'center', padding: '4px 2px' },
-                              min: 1,
-                              type: 'number'
-                            }}
-                            sx={{ 
-                              width: 50,
-                              '& .MuiInputBase-root': {
-                                fontSize: '0.875rem',
-                              }
-                            }}
-                          />
-                          <IconButton size="small" onClick={() => updateQuantity(item._id, 1)}>
-                            <Add fontSize="small" />
-                          </IconButton>
-                        </Box>
-                        <ListItemSecondaryAction>
-                          <Typography variant="body2" fontWeight="bold" sx={{ ml: 1 }}>Rs. {(item.price * item.quantity).toFixed(2)}</Typography>
-                          <IconButton edge="end" size="small" onClick={() => removeFromCart(item._id)}>
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    ))
-                  )}
-                </List>
+                 <List sx={{ flex: 1, overflow: 'auto', maxHeight: 300 }}>
+                   {cart.length === 0 ? (
+                     <ListItem>
+                       <ListItemText primary="Cart is empty" secondary="Add items from the menu" />
+                     </ListItem>
+                   ) : (
+                     cart.map(item => (
+                       <ListItem key={item._id} sx={{ px: 0, flexDirection: 'column', alignItems: 'stretch' }}>
+                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                           <ListItemText primary={item.name} secondary={"Rs. " + item.price + " each"} />
+                           <IconButton 
+                             size="small" 
+                             onClick={() => removeFromCart(item._id)}
+                             sx={{ mt: 0.5, ml: 1, color: 'error.main', '&:hover': { bgcolor: 'error.light', color: 'white' } }}
+                           >
+                             <Delete fontSize="small" />
+                           </IconButton>
+                         </Box>
+                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
+                           <IconButton size="small" onClick={() => updateQuantity(item._id, -1)}>
+                             <Remove fontSize="small" />
+                           </IconButton>
+                           <TextField
+                             size="small"
+                             value={item.quantity}
+                             onChange={(e) => setQuantity(item._id, e.target.value)}
+                             onBlur={(e) => {
+                               const qty = parseInt(e.target.value, 10);
+                               if (isNaN(qty) || qty < 1) {
+                                 setQuantity(item._id, 1);
+                               }
+                             }}
+                             inputProps={{ 
+                               style: { textAlign: 'center', padding: '4px 2px' },
+                               min: 1,
+                               type: 'number'
+                             }}
+                             sx={{ 
+                               width: 50,
+                               '& .MuiInputBase-root': {
+                                 fontSize: '0.875rem',
+                               }
+                             }}
+                           />
+                           <IconButton size="small" onClick={() => updateQuantity(item._id, 1)}>
+                             <Add fontSize="small" />
+                           </IconButton>
+                           <Typography variant="subtitle1" color="primary" fontWeight="bold" sx={{ ml: 'auto' }}>
+                             Rs. {(item.price * item.quantity).toFixed(2)}
+                           </Typography>
+                         </Box>
+                       </ListItem>
+                     ))
+                   )}
+                 </List>
 
                 <Divider sx={{ my: 1 }} />
+                
+                {/* Payment Method Selection */}
+                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                  <InputLabel>Payment Method</InputLabel>
+                  <Select
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    label="Payment Method"
+                  >
+                    <MuiMenuItem value="cash">Cash</MuiMenuItem>
+                    <MuiMenuItem value="card">Card</MuiMenuItem>
+                    <MuiMenuItem value="upi">UPI</MuiMenuItem>
+                  </Select>
+                </FormControl>
                 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant="h6">Total</Typography>
